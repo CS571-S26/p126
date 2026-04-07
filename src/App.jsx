@@ -7,10 +7,10 @@ function App() {
   const [surahs, setSurahs] = useState([]);
 
   useEffect(() => {
-    fetch("https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/quran.json")
+    fetch("https://api.alquran.cloud/v1/meta")
       .then((res) => res.json())
       .then((data) => {
-        setSurahs(data);
+        setSurahs(data.data.surahs.references);
       })
       .catch((err) => console.error(err));
   }, []);
@@ -19,7 +19,7 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<SurahList surahs={surahs} />} />
-        <Route path="/surah/:id" element={<SurahPage surahs={surahs} />} />
+        <Route path="/surah/:id" element={<SurahPage />} />
       </Routes>
     </div>
   );

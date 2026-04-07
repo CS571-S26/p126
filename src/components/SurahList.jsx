@@ -9,12 +9,12 @@ function SurahList({ surahs }) {
       {surahs.map((surah) => (
         <Card
           role="button"
-          key={surah.id}
-          onClick={() => navigate(`/surah/${surah.transliteration}`)}
+          key={surah.number}
+          onClick={() => navigate(`/surah/${surah.number}`)}
           className="mb-3 shadow-sm surah-card"
         >
-          <Card.Body> 
-            <Card.Title>{surah.transliteration}</Card.Title>
+          <Card.Body>
+            <Card.Title>{surah.englishName}</Card.Title>
             <Card.Text>{surah.name}</Card.Text>
           </Card.Body>
         </Card>
