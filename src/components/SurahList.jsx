@@ -30,9 +30,10 @@ function SurahList({ surahs }) {
             onClick={() => navigate(`/surah/${surah.number}`)}
             className="mb-3 shadow-sm surah-card"
           >
-            <Card.Body>
-              <Card.Title>{surah.englishName}</Card.Title>
-              <Card.Text>{surah.name}</Card.Text>
+            <div className="surah-number-badge">{surah.number}</div>
+            <Card.Body className="surah-card-body">
+              <Card.Title className="surah-title">{surah.englishName}</Card.Title>
+              <Card.Text className="surah-text">{surah.name}</Card.Text>
             </Card.Body>
           </Card>
         ))}

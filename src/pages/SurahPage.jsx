@@ -52,8 +52,10 @@ function SurahPage() {
 
   return (
     <div>
-      <h2>{surahMeta.englishName}</h2>
-      <h3>{surahMeta.name}</h3>
+      <div className="surah-header">
+        <h2>{surahMeta.englishName}</h2>
+        <h3>{surahMeta.name}</h3>
+      </div>
 
       <div className="mushaf-page">
         {bismillah && <div className="bismillah">{bismillah}</div>}
