@@ -29,14 +29,6 @@ function SurahList({ surahs }) {
             onClick={() => navigate(`/surah/${surah.number}`)}
             className="surah-card"
           >
-<<<<<<< HEAD
-            <div className="surah-number-badge">{surah.number}</div>
-            <Card.Body className="surah-card-body">
-              <Card.Title className="surah-title">{surah.englishName}</Card.Title>
-              <Card.Text className="surah-text">{surah.name}</Card.Text>
-            </Card.Body>
-          </Card>
-=======
             <div className="surah-card-left">
               <div className="surah-number-badge">{surah.number}</div>
               <div className="surah-card-info">
@@ -47,7 +39,6 @@ function SurahList({ surahs }) {
             </div>
             <div className="surah-arabic-name">{surah.name.split(" ").slice(1).join(" ")}</div>
           </div>
->>>>>>> 18abb10 (reorganize based on pages in surahs. add sticky nav bar to SurahPage with back button and translation toggle. redesign some styling.)
         ))}
       </div>
     </div>

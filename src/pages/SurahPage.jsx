@@ -58,12 +58,6 @@ function SurahPage() {
 
   return (
     <div>
-<<<<<<< HEAD
-      <div className="surah-header">
-        <h2>{surahMeta.englishName}</h2>
-        <h3>{surahMeta.name}</h3>
-      </div>
-=======
       <nav className="surah-nav">
         <button className="surah-nav-back" onClick={() => navigate("/")}>
           ← Back to Home
@@ -79,7 +73,6 @@ function SurahPage() {
           {showTranslation ? "Hide Translation" : "Show Translation"}
         </button>
       </nav>
->>>>>>> 18abb10 (reorganize based on pages in surahs. add sticky nav bar to SurahPage with back button and translation toggle. redesign some styling.)
 
       <div className="surah-header">
         <div className="surah-header-arabic">{surahMeta.name.split(" ").slice(1).join(" ")}</div>

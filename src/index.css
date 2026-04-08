@@ -53,35 +53,7 @@
 html,
 body {
   margin: 0;
-<<<<<<< HEAD
-  background: linear-gradient(135deg, #dcf4dd 0%, #99e79e 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-  position: relative;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(circle at 20% 50%, rgba(129, 199, 132, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(102, 187, 106, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 0%, rgba(165, 214, 167, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-=======
   background-color: #eaf5ee;
->>>>>>> 18abb10 (reorganize based on pages in surahs. add sticky nav bar to SurahPage with back button and translation toggle. redesign some styling.)
 }
 
 #root {
@@ -160,16 +132,9 @@ code {
   position: sticky;
   top: 0;
   z-index: 100;
-<<<<<<< HEAD
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(225, 245, 254, 0.95) 100%);
-  border-bottom: 1px solid #e0f2f1;
-  padding: 20px;
-  backdrop-filter: blur(10px);
-=======
   background: #e9efeb;
   border-bottom: 1px solid #d4ede1;
   padding: 12px 20px;
->>>>>>> 18abb10 (reorganize based on pages in surahs. add sticky nav bar to SurahPage with back button and translation toggle. redesign some styling.)
 }
 
 .search-input {
@@ -196,125 +161,6 @@ code {
 
 .surah-container {
   display: grid;
-<<<<<<< HEAD
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-  padding: 30px;
-}
-
-.surah-card {
-  background-color: #e3d09e;
-  border: 2px solid #c9b99a;
-  padding: 24px !important;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  position: relative;
-  overflow: visible;
-}
-
-.surah-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  background: linear-gradient(180deg, #1b5e20 0%, #66bb6a 100%);
-  border-radius: 16px 0 0 16px;
-}
-
-.surah-card:hover {
-  box-shadow: 0 8px 24px rgba(102, 187, 106, 0.3) !important;
-  transform: translateY(-4px);
-  border-color: #66bb6a !important;
-}
-
-.surah-number-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
-  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #66bb6a 100%);
-  border-radius: 12px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 24px;
-  box-shadow: 0 4px 12px rgba(102, 187, 106, 0.3);
-}
-
-.surah-card-body {
-  flex: 1;
-  padding: 0 !important;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.surah-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1b5e20;
-  margin-bottom: 8px;
-  margin: 0 0 8px 0 !important;
-  text-align: center;
-}
-
-.surah-text {
-  font-size: 16px;
-  color: #2e7d32;
-  margin: 0 !important;
-  text-align: center;
-  direction: rtl;
-}
-
-.surah-header {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(225, 245, 254, 0.98) 100%);
-  padding: 32px 20px;
-  margin: 20px auto;
-  max-width: 1100px;
-  border-left: 6px solid #1b5e20;
-  border-right: 6px solid #66bb6a;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(102, 187, 106, 0.15);
-}
-
-.surah-header h2 {
-  margin: 0 0 12px 0 !important;
-  font-size: 32px;
-  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.surah-header h3 {
-  margin: 0 !important;
-  font-size: 24px;
-  color: #2e7d32;
-  font-weight: 500;
-}
-
-.mushaf-page {
-  max-width: 1100px;
-  margin: 2rem auto;
-  padding: 48px 56px;
-  background-color: #e3d09e;
-  border-left: 6px solid #8b6914;
-  border-right: 6px solid #c9b99a;
-  border-top: 2px solid #c9b99a;
-  border-bottom: 2px solid #c9b99a;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-=======
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 14px;
   padding: 20px;
@@ -392,14 +238,13 @@ code {
 .mushaf-page {
   max-width: 820px;
   margin: 1.5rem auto;
-  padding: 10px 56px;
+  padding: 10px 40px;
   background-color: #fdf8e9;
   border: 1px solid #c9b99a;
   border-radius: 24px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
->>>>>>> 18abb10 (reorganize based on pages in surahs. add sticky nav bar to SurahPage with back button and translation toggle. redesign some styling.)
   direction: rtl;
-  font-size: 28px;
+  font-size: 32px;
   line-height: 3;
   text-align: justify;
 }
@@ -408,31 +253,27 @@ code {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #a79166 0%, #8b6914 100%);
-  border: 2px solid #8b6914;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f5ecd7;
+  border: 1.5px solid #c9b99a;
   font-size: 13px;
-<<<<<<< HEAD
-  color: #fff;
-=======
-  color: #775706;
->>>>>>> 18abb10 (reorganize based on pages in surahs. add sticky nav bar to SurahPage with back button and translation toggle. redesign some styling.)
-  margin: 0 8px;
+  color: #7a5c1e;
+  margin: 0 10px;
   vertical-align: middle;
   line-height: 1;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(139, 105, 20, 0.4);
+  flex-shrink: 0;
 }
 
 .page-number {
   display: block;
   width: 100%;
   text-align: center;
-  font-size: 20px;
-  color: #523d06;
-  margin-top: 1.5rem;
+  font-size: 22px;
+  color: #755629;
+  margin-top: 1rem;
   direction: ltr;
 }
 
@@ -441,13 +282,10 @@ code {
   width: 100%;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 24px;
-  font-weight: 600;
-  color: #020402;
-  padding: 16px;
-  background: linear-gradient(120deg, rgba(102, 187, 106, 0.15) 0%, rgba(129, 199, 132, 0.1) 100%);
-  border-radius: 8px;
-  border-left: 4px solid #66bb6a;
+  font-size: 30px;
+  color: #1a1a1a;
+  padding: 16px 0;
+  direction: rtl;
 }
 
 .ayah-clickable {
