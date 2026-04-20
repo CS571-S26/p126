@@ -1,27 +1,19 @@
-import { useEffect, useState } from "react";
-import SurahList from "./components/SurahList.jsx";
-import SurahPage from "./pages/SurahPage";
 import { Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import SurahListPage from "./pages/SurahListPage";
+import SurahPage from "./pages/SurahPage";
+import JuzPage from "./pages/JuzPage";
+import QuranPageView from "./pages/QuranPageView";
 
 function App() {
-  const [surahs, setSurahs] = useState([]);
-
-  useEffect(() => {
-    fetch("https://api.alquran.cloud/v1/meta")
-      .then((res) => res.json())
-      .then((data) => {
-        setSurahs(data.data.surahs.references);
-      })
-      .catch((err) => console.error(err));
-  }, []);
-
   return (
-    <div>
-      <Routes>
-        <Route path="/" element={<SurahList surahs={surahs} />} />
-        <Route path="/surah/:id" element={<SurahPage />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/surah" element={<SurahListPage />} />
+      <Route path="/surah/:id" element={<SurahPage />} />
+      <Route path="/juz" element={<JuzPage />} />
+      <Route path="/page/:num" element={<QuranPageView />} />
+    </Routes>
   );
 }
 

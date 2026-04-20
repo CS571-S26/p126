@@ -1,9 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
-function SurahList({ surahs }) {
+function SurahListPage() {
   const navigate = useNavigate();
+  const [surahs, setSurahs] = useState([]);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetch("https://api.alquran.cloud/v1/meta")
+      .then((res) => res.json())
+      .then((data) => setSurahs(data.data.surahs.references))
+      .catch((err) => console.error(err));
+  }, []);
 
   const filtered = surahs.filter((surah) =>
     surah.englishName.toLowerCase().includes(search.toLowerCase())
@@ -11,6 +20,7 @@ function SurahList({ surahs }) {
 
   return (
     <div>
+      <Navbar />
       <div className="search-bar">
         <input
           type="text"
@@ -20,7 +30,6 @@ function SurahList({ surahs }) {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-
       <div className="surah-container">
         {filtered.map((surah) => (
           <div
@@ -45,4 +54,4 @@ function SurahList({ surahs }) {
   );
 }
 
-export default SurahList;
+export default SurahListPage;
