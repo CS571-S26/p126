@@ -19,16 +19,25 @@ function SurahListPage() {
   );
 
   return (
-    <div>
+    <div className="surah-list-page">
       <Navbar />
-      <div className="search-bar">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search surah..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="surah-list-header-wrap">
+        <div className="surah-list-header">
+          <div className="surah-list-header-left">
+            <button className="back-home-btn" onClick={() => navigate("/")}>← Home</button>
+            <div className="surah-list-header-text">
+              <h2 className="surah-list-title">Browse by Surah</h2>
+              <p className="surah-list-subtitle">Select a chapter to begin reading</p>
+            </div>
+          </div>
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search surah..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
       <div className="surah-container">
         {filtered.map((surah) => (
