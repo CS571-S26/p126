@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import AyahModal from "../components/AyahModal";
+import AyahList from "../components/AyahList";
+import SurahNav from "../components/SurahNav";
+import MushafPage from "../components/MushafPage";
 
 function SurahPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [surahMeta, setSurahMeta] = useState(null);
   const [ayahs, setAyahs] = useState([]);
   const [bismillah, setBismillah] = useState(null);
@@ -57,22 +59,13 @@ function SurahPage() {
   }
 
   return (
-    <div>
-      <nav className="surah-nav">
-        <button className="surah-nav-back" onClick={() => navigate("/")}>
-          ← Back to Home
-        </button>
-        <div className="surah-nav-title">
-          <div className="surah-nav-english">{surahMeta.name.split(" ").slice(1).join(" ")}</div>
-          <div className="surah-nav-translation">{surahMeta.englishName}</div>
-        </div>
-        <button
-          className="translation-toggle"
-          onClick={() => setShowTranslation((t) => !t)}
-        >
-          {showTranslation ? "Hide Translation" : "Show Translation"}
-        </button>
-      </nav>
+    <div style={{background: "#f1fef5"}}>
+      <SurahNav
+        title={surahMeta.name.split(" ").slice(1).join(" ")}
+        subtitle={surahMeta.englishName}
+        showTranslation={showTranslation}
+        onToggleTranslation={() => setShowTranslation((t) => !t)}
+      />
 
       <div className="surah-header">
         <div className="surah-header-arabic">{surahMeta.name.split(" ").slice(1).join(" ")}</div>
@@ -89,30 +82,14 @@ function SurahPage() {
         else last.ayahs.push(ayah);
         return pages;
       }, []).map((pageGroup, groupIndex) => (
-        <div key={pageGroup.page} className={`mushaf-page${showTranslation ? " mushaf-bilingual" : ""}`}>
+        <MushafPage key={pageGroup.page} pageNumber={pageGroup.page} showTranslation={showTranslation}>
           {groupIndex === 0 && bismillah && <div className="bismillah">{bismillah}</div>}
-          {showTranslation
-            ? pageGroup.ayahs.map((ayah) => (
-                <div key={ayah.number} className="ayah-row" onClick={() => setSelectedAyah(ayah)}>
-                  <div className="ayah-english-col">{ayah.translation}</div>
-                  <div className="ayah-arabic-col">
-                    {ayah.text}
-                    <span className="ayah-number">{ayah.numberInSurah}</span>
-                  </div>
-                </div>
-              ))
-            : pageGroup.ayahs.map((ayah) => (
-                <span
-                  key={ayah.number}
-                  className="ayah-clickable"
-                  onClick={() => setSelectedAyah(ayah)}
-                >
-                  {ayah.text}
-                  <span className="ayah-number">{ayah.numberInSurah}</span>
-                </span>
-              ))}
-          <div className="page-number">{pageGroup.page}</div>
-        </div>
+          <AyahList
+            ayahs={pageGroup.ayahs}
+            showTranslation={showTranslation}
+            onAyahClick={setSelectedAyah}
+          />
+        </MushafPage>
       ))}
 
       <AyahModal
