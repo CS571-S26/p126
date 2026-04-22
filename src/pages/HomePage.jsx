@@ -1,12 +1,57 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import HadithOfTheDay from "../components/HadithOfTheDay";
+
+const HADITH_COLLECTIONS = [
+  { slug: "eng-bukhari",  bookName: "Sahih al Bukhari", count: 7563 },
+  { slug: "eng-muslim",   bookName: "Sahih Muslim",     count: 7563 },
+  { slug: "eng-abudawud", bookName: "Sunan Abu Dawud",  count: 5274 },
+  { slug: "eng-ibnmajah", bookName: "Sunan Ibn Majah",  count: 4341 },
+  { slug: "eng-tirmidhi", bookName: "Jami At Tirmidhi", count: 3956 },
+];
 
 function HomePage() {
   const [pageNum, setPageNum] = useState("");
   const [pageError, setPageError] = useState("");
   const navigate = useNavigate();
+
+  const [hadith, setHadith] = useState(null);
+  const [hadithLoading, setHadithLoading] = useState(true);
+  const [hadithError, setHadithError] = useState(false);
+
+  useEffect(() => {
+    const daysSinceEpoch = Math.floor(Date.now() / 86400000);
+    const collection = HADITH_COLLECTIONS[daysSinceEpoch % HADITH_COLLECTIONS.length];
+    const hadithNumber = (daysSinceEpoch % collection.count) + 1;
+
+    const primary  = `https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${collection.slug}/${hadithNumber}.json`;
+    const fallback = `https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${collection.slug}/${hadithNumber}.min.json`;
+
+    fetch(primary)
+      .catch(() => fetch(fallback))
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load");
+        return res.json();
+      })
+      .then((data) => {
+        // Response shape: { hadiths: [{ hadithnumber, text, grades, reference }], metadata: { name, section, section_detail } }
+        const h = data.hadiths?.[0];
+        if (!h) throw new Error("No hadith found");
+
+        // section is an object like { "70": "Food, Meals" } — grab the first value
+        const sectionKey = Object.keys(data.metadata?.section || {})[0];
+        const sectionName = sectionKey ? data.metadata.section[sectionKey] : null;
+
+        setHadith({
+          text: h.text,
+          hadithnumber: h.hadithnumber,
+          bookName: data.metadata?.name,
+          sectionName,
+        });
+      })
+      .catch(() => setHadithError(true))
+      .finally(() => setHadithLoading(false));
+  }, []);
 
   function handleGoToPage() {
     const num = parseInt(pageNum, 10);
@@ -131,7 +176,28 @@ function HomePage() {
         </div>
       </section>
 
-      <HadithOfTheDay />
+      {/* Hadith of the Day */}
+      <section className="home-hadith">
+        <h3 className="home-hadith-title">
+          <span className="home-hadith-title-icon">☽</span>
+          Hadith of the Day
+        </h3>
+        {hadithLoading && (
+          <p className="home-hadith-loading">Loading hadith…</p>
+        )}
+        {hadith && !hadithLoading && (
+          <div className="home-hadith-card">
+            <div className="home-hadith-meta">
+              <span className="home-hadith-book">{hadith.bookName}</span>
+              {hadith.sectionName && (
+                <span className="home-hadith-chapter">{hadith.sectionName}</span>
+              )}
+            </div>
+            <p className="home-hadith-text">{hadith.text}</p>
+            <p className="home-hadith-ref">Hadith #{hadith.hadithnumber}</p>
+          </div>
+        )}
+      </section>
 
       <footer className="home-footer">
         <p>Read the Noble Quran with ease and understanding</p>
