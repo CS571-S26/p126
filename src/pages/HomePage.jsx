@@ -3,14 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 const HADITH_COLLECTIONS = [
-  { name: "sahih-bukhari", count: 7563 },
-  { name: "sahih-muslim", count: 3032 },
-  { name: "abu-dawood", count: 3998 },
-  { name: "ibn-e-majah", count: 4342 },
-  { name: "al-tirmidhi", count: 3956 },
+  { slug: "eng-bukhari",  bookName: "Sahih al Bukhari", count: 7563 },
+  { slug: "eng-muslim",   bookName: "Sahih Muslim",     count: 7563 },
+  { slug: "eng-abudawud", bookName: "Sunan Abu Dawud",  count: 5274 },
+  { slug: "eng-ibnmajah", bookName: "Sunan Ibn Majah",  count: 4341 },
+  { slug: "eng-tirmidhi", bookName: "Jami At Tirmidhi", count: 3956 },
 ];
-
-const API_KEY = import.meta.env.VITE_HADITH_API_KEY;
 
 function HomePage() {
   const [pageNum, setPageNum] = useState("");
@@ -26,19 +24,30 @@ function HomePage() {
     const collection = HADITH_COLLECTIONS[daysSinceEpoch % HADITH_COLLECTIONS.length];
     const hadithNumber = (daysSinceEpoch % collection.count) + 1;
 
-    const API_KEY = "$2y$10$pEbfRCeC3QQ29yAguJjT5kk0cDAg1UyF9Oh85JAybFK9VlpRGR92";
+    const primary  = `https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${collection.slug}/${hadithNumber}.json`;
+    const fallback = `https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/${collection.slug}/${hadithNumber}.min.json`;
 
-    // in useEffect:
-    fetch(`/hadith-api/api/hadiths/?apiKey=${API_KEY}&book=${collection.name}&hadithNumber=${hadithNumber}&paginate=1`)
-
+    fetch(primary)
+      .catch(() => fetch(fallback))
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load");
         return res.json();
       })
       .then((data) => {
-        const fetched = data.hadiths?.data?.[0];
-        if (!fetched) throw new Error("No hadith found");
-        setHadith(fetched);
+        // Response shape: { hadiths: [{ hadithnumber, text, grades, reference }], metadata: { name, section, section_detail } }
+        const h = data.hadiths?.[0];
+        if (!h) throw new Error("No hadith found");
+
+        // section is an object like { "70": "Food, Meals" } — grab the first value
+        const sectionKey = Object.keys(data.metadata?.section || {})[0];
+        const sectionName = sectionKey ? data.metadata.section[sectionKey] : null;
+
+        setHadith({
+          text: h.text,
+          hadithnumber: h.hadithnumber,
+          bookName: data.metadata?.name,
+          sectionName,
+        });
       })
       .catch(() => setHadithError(true))
       .finally(() => setHadithLoading(false));
@@ -179,19 +188,13 @@ function HomePage() {
         {hadith && !hadithLoading && (
           <div className="home-hadith-card">
             <div className="home-hadith-meta">
-              <span className="home-hadith-book">{hadith.book?.bookName}</span>
-              {hadith.chapter?.chapterEnglish && (
-                <span className="home-hadith-chapter">{hadith.chapter.chapterEnglish}</span>
+              <span className="home-hadith-book">{hadith.bookName}</span>
+              {hadith.sectionName && (
+                <span className="home-hadith-chapter">{hadith.sectionName}</span>
               )}
             </div>
-            {hadith.headingEnglish && (
-              <p className="home-hadith-narrator">{hadith.headingEnglish}</p>
-            )}
-            <p className="home-hadith-text">{hadith.hadithEnglish}</p>
-            <p className="home-hadith-ref">
-              Hadith #{hadith.hadithNumber}
-              {hadith.status ? ` — ${hadith.status}` : ""}
-            </p>
+            <p className="home-hadith-text">{hadith.text}</p>
+            <p className="home-hadith-ref">Hadith #{hadith.hadithnumber}</p>
           </div>
         )}
       </section>
