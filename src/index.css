@@ -896,6 +896,43 @@ code {
   height: 80px;
 }
 
+.surah-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-mode-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12px 24px;
+  background: #fff;
+  border-top: 1px solid #d4ede1;
+  z-index: 100;
+}
+
+.view-mode-toggle {
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #d1fae5;
+  color: #059669;
+  border: 1.5px solid #a7f3d0;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.view-mode-toggle:hover {
+  background: #10b981;
+  color: #fff;
+  border-color: #10b981;
+}
+
 .surah-nav-back {
   background: none;
   border: none;
