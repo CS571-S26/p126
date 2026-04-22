@@ -1391,3 +1391,34 @@ code {
   opacity: 0.75;
   letter-spacing: 0.4px;
 }
+
+/* Scroll range controls */
+.scroll-range-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.scroll-count-input {
+  width: 64px;
+  padding: 6px 8px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  outline: none;
+  appearance: none;
+  -moz-appearance: textfield;
+}
+.scroll-count-input::-webkit-inner-spin-button,
+.scroll-count-input::-webkit-outer-spin-button {
+  display: none;
+}
+
+.scroll-count-input:focus {
+  border-color: #10b981;
+}

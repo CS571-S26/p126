@@ -15,17 +15,26 @@ function SurahPage() {
   const [viewMode, setViewMode] = useState("scroll");
   const [pageState, setPageState] = useState({ surahId: id, pageIndex: 0 });
   const currentPageIndex = pageState.surahId === id ? pageState.pageIndex : 0;
+  const [jumpInput, setJumpInput] = useState("");
 
   function updateCurrentPageIndex(updater) {
     setPageState((prev) => {
       const previousIndex = prev.surahId === id ? prev.pageIndex : 0;
       const nextIndex = typeof updater === "function" ? updater(previousIndex) : updater;
-
-      return {
-        surahId: id,
-        pageIndex: nextIndex,
-      };
+      return { surahId: id, pageIndex: nextIndex };
     });
+  }
+
+  function handleJump() {
+    const num = parseInt(jumpInput, 10);
+    if (isNaN(num)) return;
+    if (viewMode === "page") {
+      const idx = pages.findIndex((p) => p.page === num);
+      if (idx !== -1) updateCurrentPageIndex(idx);
+    } else {
+      document.getElementById(`mushaf-page-${num}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    setJumpInput("");
   }
 
   if (loading) {
@@ -40,6 +49,8 @@ function SurahPage() {
     return <p>Loading...</p>;
   }
 
+  const pageNums = pages.map((p) => p.page);
+
   return (
     <div style={{ background: "#f1fef5", paddingBottom: "64px" }}>
       <SurahNav
@@ -48,6 +59,20 @@ function SurahPage() {
         showTranslation={showTranslation}
         onToggleTranslation={() => setShowTranslation((t) => !t)}
       />
+
+      <div className="scroll-range-bar">
+        <span>Jump to page</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          className="scroll-count-input"
+          placeholder={pageNums[0] ? `${pageNums[0]}–${pageNums[pageNums.length - 1]}` : ""}
+          value={jumpInput}
+          onChange={(e) => setJumpInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleJump()}
+        />
+        <button className="page-nav-btn" onClick={handleJump}>Go</button>
+      </div>
 
       <div className="surah-header">
         <div className="surah-header-arabic">{surahMeta.name.split(" ").slice(1).join(" ")}</div>

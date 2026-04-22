@@ -16,6 +16,19 @@ function JuzDetailPage() {
   const [viewMode, setViewMode] = useState("scroll");
   const [pageState, setPageState] = useState({ juzNum: num, pageIndex: 0 });
   const currentPageIndex = pageState.juzNum === num ? pageState.pageIndex : 0;
+  const [jumpInput, setJumpInput] = useState("");
+
+  function handleJump(juzPages) {
+    const num2 = parseInt(jumpInput, 10);
+    if (isNaN(num2)) return;
+    if (viewMode === "page") {
+      const idx = juzPages.findIndex((p) => p.page === num2);
+      if (idx !== -1) updateCurrentPageIndex(idx);
+    } else {
+      document.getElementById(`mushaf-page-${num2}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    setJumpInput("");
+  }
 
   function updateCurrentPageIndex(updater) {
     setPageState((prev) => {
@@ -130,6 +143,20 @@ function JuzDetailPage() {
           {showTranslation ? "Hide Translation" : "Show Translation"}
         </button>
       </nav>
+
+      <div className="scroll-range-bar">
+        <span>Jump to page</span>
+        <input
+          type="text"
+          inputMode="numeric"
+          className="scroll-count-input"
+          placeholder={juzPages.length ? `${juzPages[0].page}–${juzPages[juzPages.length - 1].page}` : ""}
+          value={jumpInput}
+          onChange={(e) => setJumpInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleJump(juzPages)}
+        />
+        <button className="page-nav-btn" onClick={() => handleJump(juzPages)}>Go</button>
+      </div>
 
       {viewMode === "scroll" && juzPages.map((pageGroup) => (
         <MushafPage

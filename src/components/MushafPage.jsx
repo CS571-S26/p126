@@ -1,6 +1,6 @@
 function MushafPage({ pageNumber, showTranslation, children }) {
   return (
-    <div className={`mushaf-page${showTranslation ? " mushaf-bilingual" : ""}`}>
+    <div id={`mushaf-page-${pageNumber}`} className={`mushaf-page${showTranslation ? " mushaf-bilingual" : ""}`}>
       {children}
       <div className="page-number">{pageNumber}</div>
     </div>
