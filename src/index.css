@@ -909,6 +909,7 @@ code {
   right: 0;
   display: flex;
   justify-content: center;
+  gap: 8px;
   padding: 12px 24px;
   background: #fff;
   border-top: 1px solid #d4ede1;
@@ -931,6 +932,34 @@ code {
   background: #10b981;
   color: #fff;
   border-color: #10b981;
+}
+
+.view-mode-toggle.view-mode-active {
+  background: #10b981;
+  color: #fff;
+  border-color: #10b981;
+}
+
+.memorize-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 12px 24px;
+  background: #fff;
+  border-bottom: 1px solid #e5f0ea;
+}
+
+.ayah-memorize-hidden {
+  color: transparent;
+  user-select: none;
+  cursor: default;
+}
+
+.ayah-memorize-hidden .ayah-number {
+  color: #7a5c1e;
+  background: #f5ecd7;
+  border-color: #c9b99a;
 }
 
 .surah-nav-back {
