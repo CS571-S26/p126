@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
@@ -17,7 +17,6 @@ function HomePage() {
 
   const [hadith, setHadith] = useState(null);
   const [hadithLoading, setHadithLoading] = useState(true);
-  const [hadithError, setHadithError] = useState(false);
 
   useEffect(() => {
     const daysSinceEpoch = Math.floor(Date.now() / 86400000);
@@ -49,7 +48,7 @@ function HomePage() {
           sectionName,
         });
       })
-      .catch(() => setHadithError(true))
+      .catch(() => null)
       .finally(() => setHadithLoading(false));
   }, []);
 

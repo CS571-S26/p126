@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import AyahModal from "../components/AyahModal";
 import AyahList from "../components/AyahList";
-import SurahNav from "../components/SurahNav";
 import MushafPage from "../components/MushafPage";
 import MemorizationMode from "../components/MemorizationMode";
+import Navbar from "../components/Navbar";
+import ReadingControlsSidebar from "../components/ReadingControlsSidebar";
 import useSurahData from "../hooks/useSurahData";
 
 function SurahPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { surahMeta, pages, bismillah, loading, error } = useSurahData(id);
   const [selectedAyah, setSelectedAyah] = useState(null);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -52,27 +54,39 @@ function SurahPage() {
   const pageNums = pages.map((p) => p.page);
 
   return (
-    <div style={{ background: "#f1fef5", paddingBottom: "64px" }}>
-      <SurahNav
-        title={surahMeta.name.split(" ").slice(1).join(" ")}
-        subtitle={surahMeta.englishName}
+    <div style={{ background: "#f1fef5" }}>
+      <Navbar />
+      <ReadingControlsSidebar
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
         showTranslation={showTranslation}
         onToggleTranslation={() => setShowTranslation((t) => !t)}
+        jumpInput={jumpInput}
+        onJumpInputChange={setJumpInput}
+        onJump={handleJump}
+        jumpPlaceholder={pageNums[0] ? `${pageNums[0]}–${pageNums[pageNums.length - 1]}` : ""}
+        pageNav={viewMode === "page" ? {
+          onPrev: () => updateCurrentPageIndex((i) => i - 1),
+          onNext: () => updateCurrentPageIndex((i) => i + 1),
+          prevDisabled: currentPageIndex === 0,
+          nextDisabled: currentPageIndex === pages.length - 1,
+          label: pages[currentPageIndex]?.page,
+        } : undefined}
+        info={{
+          number: parseInt(id),
+          arabicName: surahMeta.name.split(" ").slice(1).join(" "),
+          englishName: surahMeta.englishName,
+          subtitle: surahMeta.englishNameTranslation,
+          details: [
+            { label: "Revelation", value: surahMeta.revelationType },
+            { label: "Verses", value: surahMeta.numberOfAyahs },
+          ],
+        }}
+        navLinks={[
+          { label: "Home", icon: "⌂", onClick: () => navigate("/") },
+          { label: "All Surahs", icon: "☰", onClick: () => navigate("/surah") },
+        ]}
       />
-
-      <div className="scroll-range-bar">
-        <span>Jump to page</span>
-        <input
-          type="text"
-          inputMode="numeric"
-          className="scroll-count-input"
-          placeholder={pageNums[0] ? `${pageNums[0]}–${pageNums[pageNums.length - 1]}` : ""}
-          value={jumpInput}
-          onChange={(e) => setJumpInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleJump()}
-        />
-        <button className="page-nav-btn" onClick={handleJump}>Go</button>
-      </div>
 
       <div className="surah-header">
         <div className="surah-header-arabic">{surahMeta.name.split(" ").slice(1).join(" ")}</div>
@@ -96,25 +110,6 @@ function SurahPage() {
 
       {viewMode === "page" && (
         <>
-          <div className="page-nav-bar">
-            <button
-              className="page-nav-btn"
-              onClick={() => updateCurrentPageIndex((index) => index - 1)}
-              disabled={currentPageIndex === 0}
-            >
-              ← Prev
-            </button>
-            <span className="page-nav-indicator">
-              Page {currentPageIndex + 1} of {pages.length}
-            </span>
-            <button
-              className="page-nav-btn"
-              onClick={() => updateCurrentPageIndex((index) => index + 1)}
-              disabled={currentPageIndex === pages.length - 1}
-            >
-              Next →
-            </button>
-          </div>
           {pages[currentPageIndex] && (
             <MushafPage
               pageNumber={pages[currentPageIndex].page}
@@ -139,18 +134,6 @@ function SurahPage() {
         ayah={selectedAyah}
         onClose={() => setSelectedAyah(null)}
       />
-
-      <div className="view-mode-bar">
-        {["scroll", "page", "memorize"].map((mode) => (
-          <button
-            key={mode}
-            className={`view-mode-toggle${viewMode === mode ? " view-mode-active" : ""}`}
-            onClick={() => setViewMode(mode)}
-          >
-            {mode === "scroll" ? "Scroll" : mode === "page" ? "Page" : "Memorize"}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

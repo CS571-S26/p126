@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AyahModal from "../components/AyahModal";
 import AyahList from "../components/AyahList";
-import SurahNav from "../components/SurahNav";
 import MushafPage from "../components/MushafPage";
+import Navbar from "../components/Navbar";
 import PageMemorizationMode from "../components/PageMemorizationMode";
+import ReadingControlsSidebar from "../components/ReadingControlsSidebar";
 import usePageData from "../hooks/usePageData";
 import usePageRangeData from "../hooks/usePageRangeData";
 
@@ -27,13 +28,6 @@ function QuranPageView() {
     viewMode === "scroll" ? committedCount : 0
   );
 
-  function handlePageNav(nextPage) {
-    return (e) => {
-      e.currentTarget.blur();
-      navigate(`/page/${nextPage}`);
-    };
-  }
-
   function commitScrollCount() {
     const parsed = parseInt(scrollCount, 10);
     const clamped = Math.max(1, Math.min(isNaN(parsed) ? 1 : parsed, TOTAL_PAGES - pageNum + 1));
@@ -41,19 +35,6 @@ function QuranPageView() {
     setCommittedCount(clamped);
   }
 
-  function renderPageNavigation() {
-    return (
-      <div className="page-nav-bar">
-        <button className="page-nav-btn" onClick={handlePageNav(pageNum - 1)} disabled={pageNum <= 1}>
-          ← Prev
-        </button>
-        <span className="page-nav-indicator">Page {pageNum} / {TOTAL_PAGES}</span>
-        <button className="page-nav-btn" onClick={handlePageNav(pageNum + 1)} disabled={pageNum >= TOTAL_PAGES}>
-          Next →
-        </button>
-      </div>
-    );
-  }
 
   function renderGroups(groups) {
     return groups.map((group) => (
@@ -80,32 +61,35 @@ function QuranPageView() {
   }
 
   return (
-    <div style={{ paddingBottom: "64px" }}>
-      <SurahNav
-        title={`Page ${pageNum}`}
-        subtitle={`of ${TOTAL_PAGES}`}
+    <div>
+      <Navbar />
+      <ReadingControlsSidebar
+        viewMode={viewMode}
+        onViewModeChange={(mode) => { setViewMode(mode); }}
         showTranslation={showTranslation}
         onToggleTranslation={() => setShowTranslation((t) => !t)}
+        scrollCount={scrollCount}
+        onScrollCountChange={setScrollCount}
+        onCommitScrollCount={commitScrollCount}
+        info={{
+          number: pageNum,
+          englishName: `Page ${pageNum}`,
+          subtitle: `of ${TOTAL_PAGES}`,
+        }}
+        pageNav={viewMode !== "scroll" ? {
+          onPrev: () => navigate(`/page/${pageNum - 1}`),
+          onNext: () => navigate(`/page/${pageNum + 1}`),
+          prevDisabled: pageNum <= 1,
+          nextDisabled: pageNum >= TOTAL_PAGES,
+          label: pageNum,
+        } : undefined}
+        navLinks={[
+          { label: "Home", icon: "⌂", onClick: () => navigate("/") },
+        ]}
       />
 
       {viewMode === "scroll" ? (
         <>
-          <div className="scroll-range-bar">
-            <span>Load</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              className="scroll-count-input"
-              value={scrollCount}
-              onChange={(e) => setScrollCount(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && commitScrollCount()}
-            />
-            <span>pages from page {pageNum}</span>
-            <button className="page-nav-btn" onClick={commitScrollCount}>
-              Load
-            </button>
-          </div>
-
           {scrollLoading ? (
             <p className="page-loading">Loading {committedCount} pages…</p>
           ) : scrollError ? (
@@ -123,35 +107,14 @@ function QuranPageView() {
       ) : error ? (
         <p className="page-loading">{error}</p>
       ) : viewMode === "memorize" ? (
-        <>
-          {renderPageNavigation()}
-          <PageMemorizationMode key={pageNum} pageNum={pageNum} surahGroups={surahGroups} />
-        </>
+        <PageMemorizationMode key={pageNum} pageNum={pageNum} surahGroups={surahGroups} />
       ) : (
-        <>
-          {renderPageNavigation()}
-          <MushafPage pageNumber={pageNum} showTranslation={showTranslation}>
-            {renderGroups(surahGroups)}
-          </MushafPage>
-        </>
+        <MushafPage pageNumber={pageNum} showTranslation={showTranslation}>
+          {renderGroups(surahGroups)}
+        </MushafPage>
       )}
 
       <AyahModal ayah={selectedAyah} onClose={() => setSelectedAyah(null)} />
-
-      <div className="view-mode-bar">
-        {["scroll", "page", "memorize"].map((mode) => (
-          <button
-            key={mode}
-            className={`view-mode-toggle${viewMode === mode ? " view-mode-active" : ""}`}
-            onClick={(e) => {
-              e.currentTarget.blur();
-              setViewMode(mode);
-            }}
-          >
-            {mode === "scroll" ? "Scroll" : mode === "page" ? "Page" : "Memorize"}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }

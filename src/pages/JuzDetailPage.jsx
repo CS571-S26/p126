@@ -5,6 +5,7 @@ import AyahModal from "../components/AyahModal";
 import AyahList from "../components/AyahList";
 import JuzMemorizationMode from "../components/JuzMemorizationMode";
 import MushafPage from "../components/MushafPage";
+import ReadingControlsSidebar from "../components/ReadingControlsSidebar";
 import useJuzData from "../hooks/useJuzData";
 
 function JuzDetailPage() {
@@ -131,32 +132,36 @@ function JuzDetailPage() {
   return (
     <div>
       <Navbar />
-      <nav className="surah-nav">
-        <button className="surah-nav-back" onClick={() => navigate("/juz")}>
-          {"←"} Back to Juz List
-        </button>
-        <div className="surah-nav-title">
-          <div className="surah-nav-english">Juz {num}</div>
-          <div className="surah-nav-translation">{"الجزء"} {num}</div>
-        </div>
-        <button className="translation-toggle" onClick={() => setShowTranslation((t) => !t)}>
-          {showTranslation ? "Hide Translation" : "Show Translation"}
-        </button>
-      </nav>
 
-      <div className="scroll-range-bar">
-        <span>Jump to page</span>
-        <input
-          type="text"
-          inputMode="numeric"
-          className="scroll-count-input"
-          placeholder={juzPages.length ? `${juzPages[0].page}–${juzPages[juzPages.length - 1].page}` : ""}
-          value={jumpInput}
-          onChange={(e) => setJumpInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleJump(juzPages)}
-        />
-        <button className="page-nav-btn" onClick={() => handleJump(juzPages)}>Go</button>
-      </div>
+      <ReadingControlsSidebar
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        showTranslation={showTranslation}
+        onToggleTranslation={() => setShowTranslation((t) => !t)}
+        jumpInput={jumpInput}
+        onJumpInputChange={setJumpInput}
+        onJump={() => handleJump(juzPages)}
+        jumpPlaceholder={juzPages.length ? `${juzPages[0].page}–${juzPages[juzPages.length - 1].page}` : ""}
+        pageNav={viewMode === "page" ? {
+          onPrev: () => updateCurrentPageIndex((i) => i - 1),
+          onNext: () => updateCurrentPageIndex((i) => i + 1),
+          prevDisabled: currentPageIndex === 0,
+          nextDisabled: currentPageIndex === juzPages.length - 1,
+          label: juzPages[currentPageIndex]?.page,
+        } : undefined}
+        info={{
+          number: parseInt(num),
+          arabicName: `الجزء ${num}`,
+          englishName: `Juz ${num}`,
+          details: [
+            { label: "Pages", value: juzPages.length },
+          ],
+        }}
+        navLinks={[
+          { label: "Home", icon: "⌂", onClick: () => navigate("/") },
+          { label: "All Juzs", icon: "☰", onClick: () => navigate("/juz") },
+        ]}
+      />
 
       {viewMode === "scroll" && juzPages.map((pageGroup) => (
         <MushafPage
@@ -170,26 +175,6 @@ function JuzDetailPage() {
 
       {viewMode === "page" && (
         <>
-          <div className="page-nav-bar">
-            <button
-              className="page-nav-btn"
-              onClick={() => updateCurrentPageIndex((index) => index - 1)}
-              disabled={currentPageIndex === 0}
-            >
-              ← Prev
-            </button>
-            <span className="page-nav-indicator">
-              Page {currentPageIndex + 1} of {juzPages.length}
-            </span>
-            <button
-              className="page-nav-btn"
-              onClick={() => updateCurrentPageIndex((index) => index + 1)}
-              disabled={currentPageIndex === juzPages.length - 1}
-            >
-              Next →
-            </button>
-          </div>
-
           {juzPages[currentPageIndex] && (
             <MushafPage
               pageNumber={juzPages[currentPageIndex].page}
@@ -211,18 +196,6 @@ function JuzDetailPage() {
       )}
 
       <AyahModal ayah={selectedAyah} onClose={() => setSelectedAyah(null)} />
-
-      <div className="view-mode-bar">
-        {["scroll", "page", "memorize"].map((mode) => (
-          <button
-            key={mode}
-            className={`view-mode-toggle${viewMode === mode ? " view-mode-active" : ""}`}
-            onClick={() => setViewMode(mode)}
-          >
-            {mode === "scroll" ? "Scroll" : mode === "page" ? "Page" : "Memorize"}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
