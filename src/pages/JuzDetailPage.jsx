@@ -1,86 +1,34 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import AyahModal from "../components/AyahModal";
- 
+import AyahList from "../components/AyahList";
+import JuzMemorizationMode from "../components/JuzMemorizationMode";
+import MushafPage from "../components/MushafPage";
+import useJuzData from "../hooks/useJuzData";
+
 function JuzDetailPage() {
   const { num } = useParams();
   const navigate = useNavigate();
-  const [surahGroups, setSurahGroups] = useState(null);
+  const { surahGroups, loading, error } = useJuzData(num);
   const [showTranslation, setShowTranslation] = useState(false);
   const [selectedAyah, setSelectedAyah] = useState(null);
-  const [error, setError] = useState(null);
- 
-  useEffect(() => {
-    const fetchJuzData = async () => {
-      try {
-        setError(null);
-        
-        // Fetch Arabic Quran text and English translation in parallel
-        const [arabicRes, englishRes] = await Promise.all([
-          fetch(`https://api.alquran.cloud/v1/juz/${num}/quran-uthmani`),
-          fetch(`https://api.alquran.cloud/v1/juz/${num}/en.asad`)
-        ]);
-        
-        if (!arabicRes.ok || !englishRes.ok) {
-          throw new Error(`API Error: ${!arabicRes.ok ? arabicRes.status : englishRes.status}`);
-        }
-        
-        const arabicData = await arabicRes.json();
-        const englishData = await englishRes.json();
-        
-        if (!arabicData.data || !arabicData.data.ayahs) {
-          throw new Error("Invalid data format from API");
-        }
-        
-        const arabicAyahs = arabicData.data.ayahs;
-        const englishAyahs = englishData.data.ayahs;
-        
-        const ayahs = arabicAyahs.map((ayah, i) => ({
-          number: ayah.number,
-          numberInSurah: ayah.numberInSurah,
-          page: ayah.page,
-          text: ayah.text,
-          translation: englishAyahs[i]?.text || "Translation not available",
-          surah: ayah.surah,
-        }));
- 
-        const groups = ayahs.reduce((acc, ayah) => {
-          const last = acc[acc.length - 1];
-          if (!last || last.surahNumber !== ayah.surah.number) {
-            acc.push({ 
-              surahNumber: ayah.surah.number, 
-              surah: ayah.surah, 
-              ayahs: [ayah], 
-              bismillah: null 
-            });
-          } else {
-            last.ayahs.push(ayah);
-          }
-          return acc;
-        }, []);
- 
-        groups.forEach((group) => {
-          if (group.surahNumber !== 1 && group.surahNumber !== 9 && group.ayahs[0]?.numberInSurah === 1) {
-            const clean = group.ayahs[0].text.replace(/[‏‎﻿​]/g, "").trim();
-            const words = clean.split(/\s+/);
-            if (words[0].startsWith("بِسْمِ")) {
-              group.bismillah = words.slice(0, 4).join(" ");
-              group.ayahs[0] = { ...group.ayahs[0], text: words.slice(4).join(" ") };
-            }
-          }
-        });
- 
-        setSurahGroups(groups);
-      } catch (err) {
-        console.error("Error fetching Juz data:", err);
-        setError(err.message || "Failed to load Juz. Please try again.");
-      }
-    };
-    
-    fetchJuzData();
-  }, [num]);
- 
+  const [viewMode, setViewMode] = useState("scroll");
+  const [pageState, setPageState] = useState({ juzNum: num, pageIndex: 0 });
+  const currentPageIndex = pageState.juzNum === num ? pageState.pageIndex : 0;
+
+  function updateCurrentPageIndex(updater) {
+    setPageState((prev) => {
+      const previousIndex = prev.juzNum === num ? prev.pageIndex : 0;
+      const nextIndex = typeof updater === "function" ? updater(previousIndex) : updater;
+
+      return {
+        juzNum: num,
+        pageIndex: nextIndex,
+      };
+    });
+  }
+
   if (error) {
     return (
       <div>
@@ -94,8 +42,8 @@ function JuzDetailPage() {
       </div>
     );
   }
-  
-  if (!surahGroups) {
+
+  if (loading || !surahGroups) {
     return (
       <div>
         <Navbar />
@@ -106,7 +54,67 @@ function JuzDetailPage() {
       </div>
     );
   }
- 
+
+  const juzPages = surahGroups.reduce((pages, group) => {
+    group.ayahs.forEach((ayah, index) => {
+      let pageGroup = pages[pages.length - 1];
+
+      if (!pageGroup || pageGroup.page !== ayah.page) {
+        pageGroup = { page: ayah.page, sections: [] };
+        pages.push(pageGroup);
+      }
+
+      const lastSection = pageGroup.sections[pageGroup.sections.length - 1];
+      const startsNewSurahSection =
+        !lastSection ||
+        lastSection.surahNumber !== group.surahNumber ||
+        (index === 0 && ayah.numberInSurah === 1);
+
+      if (startsNewSurahSection) {
+        pageGroup.sections.push({
+          surahNumber: group.surahNumber,
+          surah: group.surah,
+          ayahs: [ayah],
+          bismillah: index === 0 ? group.bismillah : null,
+        });
+      } else {
+        lastSection.ayahs.push(ayah);
+      }
+    });
+
+    return pages;
+  }, []);
+
+  function renderPageSection(section, pageNumber) {
+    return (
+      <div key={`${pageNumber}-${section.surahNumber}-${section.ayahs[0].number}`}>
+        {section.ayahs[0].numberInSurah === 1 && (
+          <div
+            className="juz-surah-divider"
+            role="button"
+            onClick={() => navigate(`/surah/${section.surahNumber}`)}
+          >
+            <div className="juz-surah-divider-number">{section.surahNumber}</div>
+            <div className="juz-surah-divider-info">
+              <span className="juz-surah-divider-english">{section.surah.englishName}</span>
+              <span className="juz-surah-divider-translation">{section.surah.englishNameTranslation}</span>
+            </div>
+            <div className="juz-surah-divider-arabic">{section.surah.name}</div>
+            <span className="juz-surah-divider-link">Read full surah {"→"}</span>
+          </div>
+        )}
+
+        {section.bismillah && <div className="bismillah">{section.bismillah}</div>}
+
+        <AyahList
+          ayahs={section.ayahs}
+          showTranslation={showTranslation}
+          onAyahClick={setSelectedAyah}
+        />
+      </div>
+    );
+  }
+
   return (
     <div>
       <Navbar />
@@ -122,45 +130,74 @@ function JuzDetailPage() {
           {showTranslation ? "Hide Translation" : "Show Translation"}
         </button>
       </nav>
- 
-      {surahGroups.map((group) => (
-        <div key={group.surahNumber}>
-          <div className="juz-surah-divider" role="button" onClick={() => navigate(`/surah/${group.surahNumber}`)}>
-            <div className="juz-surah-divider-number">{group.surahNumber}</div>
-            <div className="juz-surah-divider-info">
-              <span className="juz-surah-divider-english">{group.surah.englishName}</span>
-              <span className="juz-surah-divider-translation">{group.surah.englishNameTranslation}</span>
-            </div>
-            <div className="juz-surah-divider-arabic">{group.surah.name}</div>
-            <span className="juz-surah-divider-link">Read full surah {"→"}</span>
-          </div>
- 
-          {group.bismillah && <div className="bismillah">{group.bismillah}</div>}
- 
-          <div className={`mushaf-page${showTranslation ? " mushaf-bilingual" : ""}`}>
-            {showTranslation
-              ? group.ayahs.map((ayah) => (
-                  <div key={ayah.number} className="ayah-row" onClick={() => setSelectedAyah(ayah)}>
-                    <div className="ayah-english-col">{ayah.translation}</div>
-                    <div className="ayah-arabic-col">
-                      {ayah.text}
-                      <span className="ayah-number">{ayah.numberInSurah}</span>
-                    </div>
-                  </div>
-                ))
-              : group.ayahs.map((ayah) => (
-                  <span key={ayah.number} className="ayah-clickable" onClick={() => setSelectedAyah(ayah)}>
-                    {ayah.text}
-                    <span className="ayah-number">{ayah.numberInSurah}</span>
-                  </span>
-                ))}
-          </div>
-        </div>
+
+      {viewMode === "scroll" && juzPages.map((pageGroup) => (
+        <MushafPage
+          key={pageGroup.page}
+          pageNumber={pageGroup.page}
+          showTranslation={showTranslation}
+        >
+          {pageGroup.sections.map((section) => renderPageSection(section, pageGroup.page))}
+        </MushafPage>
       ))}
- 
+
+      {viewMode === "page" && (
+        <>
+          <div className="page-nav-bar">
+            <button
+              className="page-nav-btn"
+              onClick={() => updateCurrentPageIndex((index) => index - 1)}
+              disabled={currentPageIndex === 0}
+            >
+              ← Prev
+            </button>
+            <span className="page-nav-indicator">
+              Page {currentPageIndex + 1} of {juzPages.length}
+            </span>
+            <button
+              className="page-nav-btn"
+              onClick={() => updateCurrentPageIndex((index) => index + 1)}
+              disabled={currentPageIndex === juzPages.length - 1}
+            >
+              Next →
+            </button>
+          </div>
+
+          {juzPages[currentPageIndex] && (
+            <MushafPage
+              pageNumber={juzPages[currentPageIndex].page}
+              showTranslation={showTranslation}
+            >
+              {juzPages[currentPageIndex].sections.map((section) =>
+                renderPageSection(section, juzPages[currentPageIndex].page)
+              )}
+            </MushafPage>
+          )}
+        </>
+      )}
+
+      {viewMode === "memorize" && (
+        <JuzMemorizationMode
+          pages={juzPages}
+          onSurahNavigate={(surahNumber) => navigate(`/surah/${surahNumber}`)}
+        />
+      )}
+
       <AyahModal ayah={selectedAyah} onClose={() => setSelectedAyah(null)} />
+
+      <div className="view-mode-bar">
+        {["scroll", "page", "memorize"].map((mode) => (
+          <button
+            key={mode}
+            className={`view-mode-toggle${viewMode === mode ? " view-mode-active" : ""}`}
+            onClick={() => setViewMode(mode)}
+          >
+            {mode === "scroll" ? "Scroll" : mode === "page" ? "Page" : "Memorize"}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
- 
+
 export default JuzDetailPage;

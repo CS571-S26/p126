@@ -1,16 +1,75 @@
-# React + Vite
+# p126 Quran Web Project
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+`p126` is a React + Vite Quran reader that lets users explore the Quran by Surah, Juz, or Mushaf page.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Browse all 114 surahs with search
+- Read any surah in scroll, page, or memorization mode
+- Browse all 30 juz and open a juz detail reader
+- Jump directly to any Mushaf page from 1 to 604
+- Toggle English translation while reading
+- Open an ayah modal with audio playback
 
-## React Compiler
+## Routes
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `/` home page
+- `/surah` surah list
+- `/surah/:id` surah reader
+- `/juz` juz list
+- `/juz/:num` juz detail reader
+- `/page/:num` Mushaf page reader
 
-## Expanding the ESLint configuration
+## Data Source
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The app fetches Quran content from `https://api.alquran.cloud/v1`.
+
+Current editions in use:
+
+- Surah reader: `quran-uthmani`, `en.sahih`, `ar.alafasy`
+- Juz reader: `quran-uthmani`, `en.asad`
+- Page reader: `quran-uthmani`, `en.sahih`, `ar.alafasy`
+
+## Project Structure
+
+Key directories inside `src/`:
+
+- `pages/` route-level screens
+- `components/` reusable UI pieces
+- `hooks/` page-focused data hooks such as `useSurahData`, `useJuzData`, and `usePageData`
+- `lib/quran/` shared Quran API and normalization helpers
+
+## Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Run lint:
+
+```bash
+npm run lint
+```
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+## Deployment
+
+Vite is configured with:
+
+- `base: "/p126/"`
+- `build.outDir: "docs"`
+
+That makes the project suitable for GitHub Pages style deployment from the `docs/` directory.

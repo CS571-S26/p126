@@ -4,6 +4,13 @@ import MushafPage from "./MushafPage";
 function MemorizationMode({ pages, bismillah }) {
   const total = pages.reduce((sum, p) => sum + p.ayahs.length, 0);
   const [revealedCount, setRevealedCount] = useState(0);
+  const pageStartIndexes = [];
+  let runningAyahCount = 0;
+
+  for (const pageGroup of pages) {
+    pageStartIndexes.push(runningAyahCount);
+    runningAyahCount += pageGroup.ayahs.length;
+  }
 
   useEffect(() => {
     function handleKey(e) {
@@ -13,8 +20,6 @@ function MemorizationMode({ pages, bismillah }) {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [total]);
-
-  let globalIdx = 0;
   return (
     <div>
       <div className="memorize-controls">
@@ -36,8 +41,7 @@ function MemorizationMode({ pages, bismillah }) {
       </div>
 
       {pages.map((pageGroup, groupIndex) => {
-        const startIdx = globalIdx;
-        globalIdx += pageGroup.ayahs.length;
+        const startIdx = pageStartIndexes[groupIndex];
         return (
           <MushafPage key={pageGroup.page} pageNumber={pageGroup.page} showTranslation={false}>
             {groupIndex === 0 && bismillah && <div className="bismillah">{bismillah}</div>}
