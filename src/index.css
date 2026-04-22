@@ -968,7 +968,7 @@ code {
   letter-spacing: 0.4px;
 }
 
-* Loading and Error States */
+/* Loading and Error States */
 .loading-container {
   display: flex;
   flex-direction: column;
