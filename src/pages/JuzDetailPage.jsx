@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Spinner, Alert } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import AyahModal from "../components/AyahModal";
@@ -62,7 +63,7 @@ function JuzDetailPage() {
       <div>
         <Navbar />
         <div className="error-container">
-          <p className="error-message">⚠️ {error}</p>
+          <Alert variant="danger" className="error-message">{error}</Alert>
           <button className="error-back-btn" onClick={() => navigate("/juz")}>
             ← Back to Juz List
           </button>
@@ -76,7 +77,7 @@ function JuzDetailPage() {
       <div>
         <Navbar />
         <div className="loading-container">
-          <div className="spinner"></div>
+          <Spinner animation="border" variant="success" />
           <p className="juz-loading">Loading Juz {num}...</p>
         </div>
       </div>

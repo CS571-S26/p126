@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Spinner from "react-bootstrap/Spinner";
 import { useParams, useNavigate } from "react-router-dom";
 import AyahModal from "../components/AyahModal";
 import AyahList from "../components/AyahList";
@@ -109,7 +110,7 @@ function QuranPageView() {
       {viewMode === "scroll" ? (
         <>
           {scrollLoading ? (
-            <p className="page-loading">Loading {committedCount} pages…</p>
+            <p className="page-loading"><Spinner animation="border" variant="success" size="sm" /> Loading {committedCount} pages…</p>
           ) : scrollError ? (
             <p className="page-loading">{scrollError}</p>
           ) : (
@@ -121,7 +122,7 @@ function QuranPageView() {
           )}
         </>
       ) : loading ? (
-        <p className="page-loading">Loading page {pageNum}…</p>
+        <p className="page-loading"><Spinner animation="border" variant="success" size="sm" /> Loading page {pageNum}…</p>
       ) : error ? (
         <p className="page-loading">{error}</p>
       ) : viewMode === "memorize" ? (

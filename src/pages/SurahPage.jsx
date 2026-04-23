@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Spinner from "react-bootstrap/Spinner";
 import { useParams, useNavigate } from "react-router-dom";
 import AyahModal from "../components/AyahModal";
 import AyahList from "../components/AyahList";
@@ -50,7 +51,7 @@ function SurahPage() {
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <div className="page-loading"><Spinner animation="border" variant="success" /></div>;
   }
 
   if (error) {
@@ -58,7 +59,7 @@ function SurahPage() {
   }
 
   if (!surahMeta) {
-    return <p>Loading...</p>;
+    return <div className="page-loading"><Spinner animation="border" variant="success" /></div>;
   }
 
   const pageNums = pages.map((p) => p.page);

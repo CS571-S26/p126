@@ -1,3 +1,5 @@
+import Badge from 'react-bootstrap/Badge';
+
 function AyahList({ ayahs, showTranslation, onAyahClick }) {
   if (showTranslation) {
     return ayahs.map((ayah) => (
@@ -5,7 +7,7 @@ function AyahList({ ayahs, showTranslation, onAyahClick }) {
         <div className="ayah-english-col">{ayah.translation}</div>
         <div className="ayah-arabic-col">
           {ayah.text}
-          <span className="ayah-number">{ayah.numberInSurah}</span>
+          <Badge className="ayah-number" bg="success" pill>{ayah.numberInSurah}</Badge>
         </div>
       </div>
     ));
@@ -13,7 +15,7 @@ function AyahList({ ayahs, showTranslation, onAyahClick }) {
   return ayahs.map((ayah) => (
     <span key={ayah.number} className="ayah-clickable" onClick={() => onAyahClick(ayah)}>
       {ayah.text}
-      <span className="ayah-number">{ayah.numberInSurah}</span>
+      <Badge className="ayah-number" bg="success" pill>{ayah.numberInSurah}</Badge>
     </span>
   ));
 }

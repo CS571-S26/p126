@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Form, Alert } from "react-bootstrap";
 import Navbar from "../components/Navbar";
 
 const HADITH_COLLECTIONS = [
@@ -130,7 +131,7 @@ function HomePage() {
             Navigate directly to any of the 604 pages of the Mushaf. Enter a page number below.
           </p>
           <div className="page-jump-row">
-            <input
+            <Form.Control
               type="number"
               className="page-jump-input"
               placeholder="Page number (1-604)"
@@ -148,7 +149,7 @@ function HomePage() {
               Go to Page →
             </button>
           </div>
-          {pageError && <p className="page-jump-error">{pageError}</p>}
+          {pageError && <Alert variant="danger" className="page-jump-error">{pageError}</Alert>}
         </div>
       </section>
 
