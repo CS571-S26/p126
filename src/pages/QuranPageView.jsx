@@ -22,6 +22,8 @@ function QuranPageView() {
   const [viewMode, setViewMode] = useState("page");
   const [scrollCount, setScrollCount] = useState("10");
   const [committedCount, setCommittedCount] = useState(10);
+  const [memorizeState, setMemorizeState] = useState({ pageNum, count: 0 });
+  const memorizeRevealedCount = memorizeState.pageNum === pageNum ? memorizeState.count : 0;
 
   const { pages: scrollPages, loading: scrollLoading, error: scrollError } = usePageRangeData(
     pageNum,
@@ -33,6 +35,14 @@ function QuranPageView() {
     const clamped = Math.max(1, Math.min(isNaN(parsed) ? 1 : parsed, TOTAL_PAGES - pageNum + 1));
     setScrollCount(String(clamped));
     setCommittedCount(clamped);
+  }
+
+  function updateMemorizeRevealedCount(updater) {
+    setMemorizeState((prev) => {
+      const previousCount = prev.pageNum === pageNum ? prev.count : 0;
+      const nextCount = typeof updater === "function" ? updater(previousCount) : updater;
+      return { pageNum, count: nextCount };
+    });
   }
 
 
@@ -60,6 +70,8 @@ function QuranPageView() {
     ));
   }
 
+  const memorizeTotal = surahGroups.reduce((sum, group) => sum + group.ayahs.length, 0);
+
   return (
     <div>
       <Navbar />
@@ -82,6 +94,12 @@ function QuranPageView() {
           prevDisabled: pageNum <= 1,
           nextDisabled: pageNum >= TOTAL_PAGES,
           label: pageNum,
+        } : undefined}
+        memorizeControls={viewMode === "memorize" ? {
+          onHide: () => updateMemorizeRevealedCount((count) => Math.max(0, count - 1)),
+          onReveal: () => updateMemorizeRevealedCount((count) => Math.min(memorizeTotal, count + 1)),
+          hideDisabled: memorizeRevealedCount <= 0,
+          revealDisabled: memorizeRevealedCount >= memorizeTotal,
         } : undefined}
         navLinks={[
           { label: "Home", icon: "⌂", onClick: () => navigate("/") },
@@ -107,7 +125,13 @@ function QuranPageView() {
       ) : error ? (
         <p className="page-loading">{error}</p>
       ) : viewMode === "memorize" ? (
-        <PageMemorizationMode key={pageNum} pageNum={pageNum} surahGroups={surahGroups} />
+        <PageMemorizationMode
+          key={pageNum}
+          pageNum={pageNum}
+          surahGroups={surahGroups}
+          revealedCount={memorizeRevealedCount}
+          onRevealedCountChange={updateMemorizeRevealedCount}
+        />
       ) : (
         <MushafPage pageNumber={pageNum} showTranslation={showTranslation}>
           {renderGroups(surahGroups)}

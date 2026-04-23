@@ -1,61 +1,48 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent } from "react";
 import MushafPage from "./MushafPage";
 
-function JuzMemorizationMode({ pages, onSurahNavigate }) {
+function JuzMemorizationMode({
+  pages,
+  onSurahNavigate,
+  revealedCount,
+  onRevealedCountChange,
+}) {
   const total = pages.reduce(
     (sum, pageGroup) =>
       sum + pageGroup.sections.reduce((sectionSum, section) => sectionSum + section.ayahs.length, 0),
     0
   );
-  const [revealedCount, setRevealedCount] = useState(0);
   const pageStartIndexes = [];
   let runningAyahCount = 0;
+  const effectiveRevealedCount = Math.min(revealedCount, total);
 
   for (const pageGroup of pages) {
     pageStartIndexes.push(runningAyahCount);
     runningAyahCount += pageGroup.sections.reduce((sum, section) => sum + section.ayahs.length, 0);
   }
 
-  useEffect(() => {
-    function handleKey(e) {
-      if (e.key === "Enter" || e.key === "Backspace") {
-        e.preventDefault();
-      }
+  function updateRevealedCount(updater) {
+    const currentValue = Math.min(revealedCount, total);
+    const nextValue = typeof updater === "function" ? updater(currentValue) : updater;
+    onRevealedCountChange(nextValue);
+  }
 
-      if (e.key === "Enter") setRevealedCount((count) => Math.min(total, count + 1));
-      if (e.key === "Backspace") setRevealedCount((count) => Math.max(0, count - 1));
+  const handleKey = useEffectEvent((e) => {
+    if (e.key === "Enter" || e.key === "Backspace") {
+      e.preventDefault();
     }
 
+    if (e.key === "Enter") updateRevealedCount((count) => Math.min(total, count + 1));
+    if (e.key === "Backspace") updateRevealedCount((count) => Math.max(0, count - 1));
+  });
+
+  useEffect(() => {
     window.addEventListener("keydown", handleKey, true);
     return () => window.removeEventListener("keydown", handleKey, true);
   }, [total]);
 
   return (
     <div>
-      <div className="memorize-controls">
-        <button
-          className="page-nav-btn"
-          onClick={(e) => {
-            e.currentTarget.blur();
-            setRevealedCount((count) => Math.max(0, count - 1));
-          }}
-          disabled={revealedCount <= 0}
-        >
-          ← Hide
-        </button>
-        <span className="page-nav-indicator">{revealedCount} / {total} revealed</span>
-        <button
-          className="page-nav-btn"
-          onClick={(e) => {
-            e.currentTarget.blur();
-            setRevealedCount((count) => Math.min(total, count + 1));
-          }}
-          disabled={revealedCount >= total}
-        >
-          Reveal Next →
-        </button>
-      </div>
-
       {pages.map((pageGroup, pageIndex) => {
         let pageOffset = pageStartIndexes[pageIndex];
 
@@ -90,7 +77,7 @@ function JuzMemorizationMode({ pages, onSurahNavigate }) {
                   {section.bismillah && <div className="bismillah">{section.bismillah}</div>}
 
                   {section.ayahs.map((ayah, ayahIndex) => {
-                    const isRevealed = sectionOffset + ayahIndex < revealedCount;
+                    const isRevealed = sectionOffset + ayahIndex < effectiveRevealedCount;
 
                     return (
                       <span

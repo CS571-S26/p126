@@ -1,11 +1,22 @@
-import { useState, useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import MushafPage from "./MushafPage";
 
-function MemorizationMode({ pages, bismillah }) {
+function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChange }) {
   const total = pages.reduce((sum, p) => sum + p.ayahs.length, 0);
-  const [revealedCount, setRevealedCount] = useState(0);
   const pageStartIndexes = [];
   let runningAyahCount = 0;
+  const effectiveRevealedCount = Math.min(revealedCount, total);
+
+  function updateRevealedCount(updater) {
+    const currentValue = Math.min(revealedCount, total);
+    const nextValue = typeof updater === "function" ? updater(currentValue) : updater;
+    onRevealedCountChange(nextValue);
+  }
+
+  const handleMemorizationKey = useEffectEvent((e) => {
+    if (e.key === "Enter") updateRevealedCount((c) => Math.min(total, c + 1));
+    if (e.key === "Backspace") updateRevealedCount((c) => Math.max(0, c - 1));
+  });
 
   for (const pageGroup of pages) {
     pageStartIndexes.push(runningAyahCount);
@@ -13,40 +24,19 @@ function MemorizationMode({ pages, bismillah }) {
   }
 
   useEffect(() => {
-    function handleKey(e) {
-      if (e.key === "Enter") setRevealedCount((c) => Math.min(total, c + 1));
-      if (e.key === "Backspace") setRevealedCount((c) => Math.max(0, c - 1));
-    }
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    window.addEventListener("keydown", handleMemorizationKey);
+    return () => window.removeEventListener("keydown", handleMemorizationKey);
   }, [total]);
+
   return (
     <div>
-      <div className="memorize-controls">
-        <button
-          className="page-nav-btn"
-          onClick={() => setRevealedCount((c) => Math.max(0, c - 1))}
-          disabled={revealedCount <= 0}
-        >
-          ← Hide
-        </button>
-        <span className="page-nav-indicator">{revealedCount} / {total} revealed</span>
-        <button
-          className="page-nav-btn"
-          onClick={() => setRevealedCount((c) => Math.min(total, c + 1))}
-          disabled={revealedCount >= total}
-        >
-          Reveal Next →
-        </button>
-      </div>
-
       {pages.map((pageGroup, groupIndex) => {
         const startIdx = pageStartIndexes[groupIndex];
         return (
           <MushafPage key={pageGroup.page} pageNumber={pageGroup.page} showTranslation={false}>
             {groupIndex === 0 && bismillah && <div className="bismillah">{bismillah}</div>}
             {pageGroup.ayahs.map((ayah, localIndex) => {
-              const isRevealed = startIdx + localIndex < revealedCount;
+              const isRevealed = startIdx + localIndex < effectiveRevealedCount;
               return (
                 <span
                   key={ayah.number}

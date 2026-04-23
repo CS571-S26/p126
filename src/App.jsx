@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import SurahListPage from "./pages/SurahListPage";
 import SurahPage from "./pages/SurahPage";
-import JuzPage from "./pages/JuzPage";
+import JuzPage from "./pages/JuzList";
 import JuzDetailPage from "./pages/JuzDetailPage";
 import QuranPageView from "./pages/QuranPageView";
 

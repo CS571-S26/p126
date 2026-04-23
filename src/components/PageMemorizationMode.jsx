@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent } from "react";
 import MushafPage from "./MushafPage";
 
-function PageMemorizationMode({ pageNum, surahGroups }) {
+function PageMemorizationMode({
+  pageNum,
+  surahGroups,
+  revealedCount,
+  onRevealedCountChange,
+}) {
   const total = surahGroups.reduce((sum, group) => sum + group.ayahs.length, 0);
-  const [revealedCount, setRevealedCount] = useState(0);
   const pageStartIndexes = [];
   let runningAyahCount = 0;
 
@@ -14,46 +18,28 @@ function PageMemorizationMode({ pageNum, surahGroups }) {
 
   const effectiveRevealedCount = Math.min(revealedCount, total);
 
-  useEffect(() => {
-    function handleKey(e) {
-      if (e.key === "Enter" || e.key === "Backspace") {
-        e.preventDefault();
-      }
+  function updateRevealedCount(updater) {
+    const currentValue = Math.min(revealedCount, total);
+    const nextValue = typeof updater === "function" ? updater(currentValue) : updater;
+    onRevealedCountChange(nextValue);
+  }
 
-      if (e.key === "Enter") setRevealedCount((c) => Math.min(total, c + 1));
-      if (e.key === "Backspace") setRevealedCount((c) => Math.max(0, c - 1));
+  const handleMemorizationKey = useEffectEvent((e) => {
+    if (e.key === "Enter" || e.key === "Backspace") {
+      e.preventDefault();
     }
 
-    window.addEventListener("keydown", handleKey, true);
-    return () => window.removeEventListener("keydown", handleKey, true);
+    if (e.key === "Enter") updateRevealedCount((c) => Math.min(total, c + 1));
+    if (e.key === "Backspace") updateRevealedCount((c) => Math.max(0, c - 1));
+  });
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleMemorizationKey, true);
+    return () => window.removeEventListener("keydown", handleMemorizationKey, true);
   }, [total]);
 
   return (
     <div>
-      <div className="memorize-controls">
-        <button
-          className="page-nav-btn"
-          onClick={(e) => {
-            e.currentTarget.blur();
-            setRevealedCount((c) => Math.max(0, c - 1));
-          }}
-          disabled={effectiveRevealedCount <= 0}
-        >
-          ← Hide
-        </button>
-        <span className="page-nav-indicator">{effectiveRevealedCount} / {total} revealed</span>
-        <button
-          className="page-nav-btn"
-          onClick={(e) => {
-            e.currentTarget.blur();
-            setRevealedCount((c) => Math.min(total, c + 1));
-          }}
-          disabled={effectiveRevealedCount >= total}
-        >
-          Reveal Next →
-        </button>
-      </div>
-
       <div className="memorize-page-shell">
         <div className="memorize-page-content">
           {surahGroups.map((group, groupIndex) => {

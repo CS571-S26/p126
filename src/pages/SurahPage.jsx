@@ -18,6 +18,8 @@ function SurahPage() {
   const [pageState, setPageState] = useState({ surahId: id, pageIndex: 0 });
   const currentPageIndex = pageState.surahId === id ? pageState.pageIndex : 0;
   const [jumpInput, setJumpInput] = useState("");
+  const [memorizeState, setMemorizeState] = useState({ surahId: id, count: 0 });
+  const memorizeRevealedCount = memorizeState.surahId === id ? memorizeState.count : 0;
 
   function updateCurrentPageIndex(updater) {
     setPageState((prev) => {
@@ -39,6 +41,14 @@ function SurahPage() {
     setJumpInput("");
   }
 
+  function updateMemorizeRevealedCount(updater) {
+    setMemorizeState((prev) => {
+      const previousCount = prev.surahId === id ? prev.count : 0;
+      const nextCount = typeof updater === "function" ? updater(previousCount) : updater;
+      return { surahId: id, count: nextCount };
+    });
+  }
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -52,6 +62,7 @@ function SurahPage() {
   }
 
   const pageNums = pages.map((p) => p.page);
+  const memorizeTotal = pages.reduce((sum, pageGroup) => sum + pageGroup.ayahs.length, 0);
 
   return (
     <div style={{ background: "#f1fef5" }}>
@@ -71,6 +82,12 @@ function SurahPage() {
           prevDisabled: currentPageIndex === 0,
           nextDisabled: currentPageIndex === pages.length - 1,
           label: pages[currentPageIndex]?.page,
+        } : undefined}
+        memorizeControls={viewMode === "memorize" ? {
+          onHide: () => updateMemorizeRevealedCount((count) => Math.max(0, count - 1)),
+          onReveal: () => updateMemorizeRevealedCount((count) => Math.min(memorizeTotal, count + 1)),
+          hideDisabled: memorizeRevealedCount <= 0,
+          revealDisabled: memorizeRevealedCount >= memorizeTotal,
         } : undefined}
         info={{
           number: parseInt(id),
@@ -127,7 +144,12 @@ function SurahPage() {
       )}
 
       {viewMode === "memorize" && (
-        <MemorizationMode pages={pages} bismillah={bismillah} />
+        <MemorizationMode
+          pages={pages}
+          bismillah={bismillah}
+          revealedCount={memorizeRevealedCount}
+          onRevealedCountChange={updateMemorizeRevealedCount}
+        />
       )}
 
       <AyahModal

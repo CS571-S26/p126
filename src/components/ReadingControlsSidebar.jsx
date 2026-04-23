@@ -16,6 +16,7 @@ function ReadingControlsSidebar({
   info,
   pageNav,
   navLinks,
+  memorizeControls,
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const modeLabels = { scroll: "Scroll", page: "Page", memorize: "Memorize" };
@@ -126,6 +127,16 @@ function ReadingControlsSidebar({
               <button className="sidebar-nav-btn" onClick={pageNav.onPrev} disabled={pageNav.prevDisabled}>← Prev</button>
               <span className="sidebar-nav-label">{pageNav.label}</span>
               <button className="sidebar-nav-btn" onClick={pageNav.onNext} disabled={pageNav.nextDisabled}>Next →</button>
+            </div>
+          </div>
+        )}
+
+        {memorizeControls && (
+          <div className="sidebar-section">
+            <div className="sidebar-section-label">Memorization</div>
+            <div className="sidebar-page-nav">
+              <button className="sidebar-nav-btn" onClick={memorizeControls.onHide} disabled={memorizeControls.hideDisabled}>← Hide</button>
+              <button className="sidebar-nav-btn" onClick={memorizeControls.onReveal} disabled={memorizeControls.revealDisabled}>Reveal →</button>
             </div>
           </div>
         )}

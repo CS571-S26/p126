@@ -17,6 +17,8 @@ function JuzDetailPage() {
   const [viewMode, setViewMode] = useState("scroll");
   const [pageState, setPageState] = useState({ juzNum: num, pageIndex: 0 });
   const currentPageIndex = pageState.juzNum === num ? pageState.pageIndex : 0;
+  const [memorizeState, setMemorizeState] = useState({ juzNum: num, count: 0 });
+  const memorizeRevealedCount = memorizeState.juzNum === num ? memorizeState.count : 0;
   const [jumpInput, setJumpInput] = useState("");
 
   function handleJump(juzPages) {
@@ -39,6 +41,18 @@ function JuzDetailPage() {
       return {
         juzNum: num,
         pageIndex: nextIndex,
+      };
+    });
+  }
+
+  function updateMemorizeRevealedCount(updater) {
+    setMemorizeState((prev) => {
+      const previousCount = prev.juzNum === num ? prev.count : 0;
+      const nextCount = typeof updater === "function" ? updater(previousCount) : updater;
+
+      return {
+        juzNum: num,
+        count: nextCount,
       };
     });
   }
@@ -149,6 +163,29 @@ function JuzDetailPage() {
           nextDisabled: currentPageIndex === juzPages.length - 1,
           label: juzPages[currentPageIndex]?.page,
         } : undefined}
+        memorizeControls={viewMode === "memorize" ? {
+          onHide: () => updateMemorizeRevealedCount((count) => Math.max(0, count - 1)),
+          onReveal: () => updateMemorizeRevealedCount((count) => Math.min(
+            juzPages.reduce(
+              (sum, pageGroup) =>
+                sum + pageGroup.sections.reduce(
+                  (sectionSum, section) => sectionSum + section.ayahs.length,
+                  0
+                ),
+              0
+            ),
+            count + 1
+          )),
+          hideDisabled: memorizeRevealedCount <= 0,
+          revealDisabled: memorizeRevealedCount >= juzPages.reduce(
+            (sum, pageGroup) =>
+              sum + pageGroup.sections.reduce(
+                (sectionSum, section) => sectionSum + section.ayahs.length,
+                0
+              ),
+            0
+          ),
+        } : undefined}
         info={{
           number: parseInt(num),
           arabicName: `الجزء ${num}`,
@@ -192,6 +229,8 @@ function JuzDetailPage() {
         <JuzMemorizationMode
           pages={juzPages}
           onSurahNavigate={(surahNumber) => navigate(`/surah/${surahNumber}`)}
+          revealedCount={memorizeRevealedCount}
+          onRevealedCountChange={updateMemorizeRevealedCount}
         />
       )}
 
