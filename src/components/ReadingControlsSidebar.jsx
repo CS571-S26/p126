@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function ReadingControlsSidebar({
   viewMode,
@@ -20,6 +20,18 @@ function ReadingControlsSidebar({
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const modeLabels = { scroll: "Scroll", page: "Page", memorize: "Memorize" };
+
+  useEffect(() => {
+    document.body.style.transition = "padding-left 0.25s ease";
+    return () => {
+      document.body.style.paddingLeft = "";
+      document.body.style.transition = "";
+    };
+  }, []);
+
+  useEffect(() => {
+    document.body.style.paddingLeft = isOpen ? "330px" : "0px";
+  }, [isOpen]);
 
   return (
     <>

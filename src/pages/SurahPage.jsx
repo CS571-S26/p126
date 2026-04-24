@@ -150,6 +150,7 @@ function SurahPage() {
           bismillah={bismillah}
           revealedCount={memorizeRevealedCount}
           onRevealedCountChange={updateMemorizeRevealedCount}
+          onAyahClick={setSelectedAyah}
         />
       )}
 

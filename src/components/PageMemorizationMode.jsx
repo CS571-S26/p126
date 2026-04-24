@@ -1,11 +1,11 @@
 import { useEffect, useEffectEvent } from "react";
-import MushafPage from "./MushafPage";
 
 function PageMemorizationMode({
   pageNum,
   surahGroups,
   revealedCount,
   onRevealedCountChange,
+  onAyahClick,
 }) {
   const total = surahGroups.reduce((sum, group) => sum + group.ayahs.length, 0);
   const pageStartIndexes = [];
@@ -25,8 +25,10 @@ function PageMemorizationMode({
   }
 
   const handleMemorizationKey = useEffectEvent((e) => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "Enter" || e.key === "Backspace") {
       e.preventDefault();
+      e.stopPropagation();
     }
 
     if (e.key === "Enter") updateRevealedCount((c) => Math.min(total, c + 1));
@@ -66,6 +68,7 @@ function PageMemorizationMode({
                     <span
                       key={ayah.number}
                       className={`ayah-clickable${isRevealed ? "" : " ayah-memorize-hidden"}`}
+                      onClick={() => onAyahClick(ayah)}
                     >
                       {ayah.text}
                       <span className="ayah-number">{ayah.numberInSurah}</span>

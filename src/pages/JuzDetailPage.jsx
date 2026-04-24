@@ -232,6 +232,7 @@ function JuzDetailPage() {
           onSurahNavigate={(surahNumber) => navigate(`/surah/${surahNumber}`)}
           revealedCount={memorizeRevealedCount}
           onRevealedCountChange={updateMemorizeRevealedCount}
+          onAyahClick={setSelectedAyah}
         />
       )}
 

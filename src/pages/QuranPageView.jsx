@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Spinner from "react-bootstrap/Spinner";
 import { useParams, useNavigate } from "react-router-dom";
 import AyahModal from "../components/AyahModal";
@@ -25,11 +25,39 @@ function QuranPageView() {
   const [committedCount, setCommittedCount] = useState(10);
   const [memorizeState, setMemorizeState] = useState({ pageNum, count: 0 });
   const memorizeRevealedCount = memorizeState.pageNum === pageNum ? memorizeState.count : 0;
+  const [visiblePageNum, setVisiblePageNum] = useState(pageNum);
+  const visiblePagesRef = useRef(new Set());
 
   const { pages: scrollPages, loading: scrollLoading, error: scrollError } = usePageRangeData(
     pageNum,
     viewMode === "scroll" ? committedCount : 0
   );
+
+  useEffect(() => {
+    setVisiblePageNum(pageNum);
+    visiblePagesRef.current.clear();
+  }, [pageNum]);
+
+  useEffect(() => {
+    if (viewMode !== "scroll" || !scrollPages.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const num = parseInt(entry.target.id.replace("mushaf-page-", ""), 10);
+        if (entry.isIntersecting) {
+          visiblePagesRef.current.add(num);
+        } else {
+          visiblePagesRef.current.delete(num);
+        }
+      }
+      if (visiblePagesRef.current.size > 0) {
+        setVisiblePageNum(Math.min(...visiblePagesRef.current));
+      }
+    }, { threshold: 0 });
+
+    document.querySelectorAll("[id^='mushaf-page-']").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [viewMode, scrollPages]);
 
   function commitScrollCount() {
     const parsed = parseInt(scrollCount, 10);
@@ -85,8 +113,8 @@ function QuranPageView() {
         onScrollCountChange={setScrollCount}
         onCommitScrollCount={commitScrollCount}
         info={{
-          number: pageNum,
-          englishName: `Page ${pageNum}`,
+          number: viewMode === "scroll" ? visiblePageNum : pageNum,
+          englishName: `Page ${viewMode === "scroll" ? visiblePageNum : pageNum}`,
           subtitle: `of ${TOTAL_PAGES}`,
         }}
         pageNav={viewMode !== "scroll" ? {
@@ -132,6 +160,7 @@ function QuranPageView() {
           surahGroups={surahGroups}
           revealedCount={memorizeRevealedCount}
           onRevealedCountChange={updateMemorizeRevealedCount}
+          onAyahClick={setSelectedAyah}
         />
       ) : (
         <MushafPage pageNumber={pageNum} showTranslation={showTranslation}>

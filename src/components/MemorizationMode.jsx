@@ -1,7 +1,7 @@
 import { useEffect, useEffectEvent } from "react";
 import MushafPage from "./MushafPage";
 
-function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChange }) {
+function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChange, onAyahClick }) {
   const total = pages.reduce((sum, p) => sum + p.ayahs.length, 0);
   const pageStartIndexes = [];
   let runningAyahCount = 0;
@@ -14,6 +14,11 @@ function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChan
   }
 
   const handleMemorizationKey = useEffectEvent((e) => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.key === "Enter" || e.key === "Backspace") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (e.key === "Enter") updateRevealedCount((c) => Math.min(total, c + 1));
     if (e.key === "Backspace") updateRevealedCount((c) => Math.max(0, c - 1));
   });
@@ -24,8 +29,8 @@ function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChan
   }
 
   useEffect(() => {
-    window.addEventListener("keydown", handleMemorizationKey);
-    return () => window.removeEventListener("keydown", handleMemorizationKey);
+    window.addEventListener("keydown", handleMemorizationKey, true);
+    return () => window.removeEventListener("keydown", handleMemorizationKey, true);
   }, [total]);
 
   return (
@@ -41,6 +46,7 @@ function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChan
                 <span
                   key={ayah.number}
                   className={`ayah-clickable${isRevealed ? "" : " ayah-memorize-hidden"}`}
+                  onClick={() => onAyahClick(ayah)}
                 >
                   {ayah.text}
                   <span className="ayah-number">{ayah.numberInSurah}</span>

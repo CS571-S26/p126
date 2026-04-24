@@ -6,6 +6,7 @@ function JuzMemorizationMode({
   onSurahNavigate,
   revealedCount,
   onRevealedCountChange,
+  onAyahClick,
 }) {
   const total = pages.reduce(
     (sum, pageGroup) =>
@@ -28,8 +29,10 @@ function JuzMemorizationMode({
   }
 
   const handleKey = useEffectEvent((e) => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "Enter" || e.key === "Backspace") {
       e.preventDefault();
+      e.stopPropagation();
     }
 
     if (e.key === "Enter") updateRevealedCount((count) => Math.min(total, count + 1));
@@ -83,6 +86,7 @@ function JuzMemorizationMode({
                       <span
                         key={ayah.number}
                         className={`ayah-clickable${isRevealed ? "" : " ayah-memorize-hidden"}`}
+                        onClick={() => onAyahClick(ayah)}
                       >
                         {ayah.text}
                         <span className="ayah-number">{ayah.numberInSurah}</span>
