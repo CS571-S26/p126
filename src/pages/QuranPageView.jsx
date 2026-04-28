@@ -39,18 +39,24 @@ function QuranPageView() {
 
   useEffect(() => {
     if (loading) return;
+    // Get the first surah on this page
+    const firstSurah = surahGroups[0]?.surah;
     recordVisit({
       type: "page",
       id: String(pageNum),
-      label: `Page ${pageNum}`,
+      label: `Page ${pageNum}${firstSurah ? ` - ${firstSurah.englishName}` : ""}`,
+      arabicLabel: firstSurah ? firstSurah.name.split(" ").slice(1).join(" ") : undefined,
       path: pagePath
     });
-  }, [pageNum, loading]);
+  }, [pageNum, loading, surahGroups]);
 
+  // Create bookmark entry with surah information
+  const firstSurah = surahGroups[0]?.surah;
   const bookmarkEntry = {
      type: "page",
      id: String(pageNum),
-     label: `Page ${pageNum}`,
+     label: `Page ${pageNum}${firstSurah ? ` - ${firstSurah.englishName}` : ""}`,
+     arabicLabel: firstSurah ? firstSurah.name.split(" ").slice(1).join(" ") : undefined,
      path: pagePath,
    };
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Spinner from "react-bootstrap/Spinner";
 import { useParams, useNavigate } from "react-router-dom";
 import AyahModal from "../components/AyahModal";
@@ -8,11 +8,13 @@ import MemorizationMode from "../components/MemorizationMode";
 import Navbar from "../components/Navbar";
 import ReadingControlsSidebar from "../components/ReadingControlsSidebar";
 import useSurahData from "../hooks/useSurahData";
+import useReadingHistory from "../hooks/useReadingHistory";
 
 function SurahPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { surahMeta, pages, bismillah, loading, error } = useSurahData(id);
+  const { recordVisit, isBookmarked, toggleBookmark } = useReadingHistory();
   const [selectedAyah, setSelectedAyah] = useState(null);
   const [showTranslation, setShowTranslation] = useState(false);
   const [viewMode, setViewMode] = useState("scroll");
@@ -21,6 +23,31 @@ function SurahPage() {
   const [jumpInput, setJumpInput] = useState("");
   const [memorizeState, setMemorizeState] = useState({ surahId: id, count: 0 });
   const memorizeRevealedCount = memorizeState.surahId === id ? memorizeState.count : 0;
+
+  const surahPath = `/surah/${id}`;
+
+  // Record visit when surah loads
+  useEffect(() => {
+    if (loading || !surahMeta) return;
+    const currentPage = pages[currentPageIndex]?.page;
+    recordVisit({
+      type: "surah",
+      id: String(id),
+      label: `${surahMeta.englishName}${currentPage ? ` (Page ${currentPage})` : ""}`,
+      arabicLabel: surahMeta.name.split(" ").slice(1).join(" "),
+      path: surahPath
+    });
+  }, [id, loading, surahMeta, currentPageIndex, pages]);
+
+  // Create bookmark entry with current page information
+  const currentPage = pages[currentPageIndex]?.page;
+  const bookmarkEntry = {
+    type: "surah",
+    id: String(id),
+    label: `${surahMeta?.englishName}${currentPage ? ` (Page ${currentPage})` : ""}`,
+    arabicLabel: surahMeta?.name.split(" ").slice(1).join(" "),
+    path: surahPath
+  };
 
   function updateCurrentPageIndex(updater) {
     setPageState((prev) => {
@@ -104,6 +131,10 @@ function SurahPage() {
           { label: "Home", icon: "⌂", onClick: () => navigate("/") },
           { label: "All Surahs", icon: "☰", onClick: () => navigate("/surah") },
         ]}
+        bookmark={{
+          isBookmarked: isBookmarked(surahPath),
+          onToggle: () => toggleBookmark(bookmarkEntry),
+        }}
       />
 
       <div className="surah-header">
