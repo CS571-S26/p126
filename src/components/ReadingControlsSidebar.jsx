@@ -17,6 +17,7 @@ function ReadingControlsSidebar({
   pageNav,
   navLinks,
   memorizeControls,
+  bookmark,
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const modeLabels = { scroll: "Scroll", page: "Page", memorize: "Memorize" };
@@ -167,6 +168,18 @@ function ReadingControlsSidebar({
               />
               <button className="sidebar-go-btn" onClick={onCommitScrollCount}>Load</button>
             </div>
+          </div>
+        )}
+
+        {bookmark && (
+          <div className="sidebar-section">
+            <div className="sidebar-section-label">Bookmark</div>
+            <button
+              className={`sidebar-ctrl-btn${bookmark.isBookmarked ? " sidebar-ctrl-active" : ""}`}
+              onClick={bookmark.onToggle}
+            >
+              {bookmark.isBookmarked ? "★ Bookmarked" : "☆ Add Bookmark"}
+            </button>
           </div>
         )}
       </div>

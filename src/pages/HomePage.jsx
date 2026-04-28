@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Alert } from "react-bootstrap";
 import Navbar from "../components/Navbar";
+import useReadingHistory from "../hooks/useReadingHistory";
 
 const HADITH_COLLECTIONS = [
   { slug: "eng-bukhari",  bookName: "Sahih al Bukhari", count: 7563 },
@@ -11,10 +12,13 @@ const HADITH_COLLECTIONS = [
   { slug: "eng-tirmidhi", bookName: "Jami At Tirmidhi", count: 3956 },
 ];
 
+const TYPE_LABELS = { surah: "Surah", juz: "Juz", page: "Page" };
+
 function HomePage() {
   const [pageNum, setPageNum] = useState("");
   const [pageError, setPageError] = useState("");
   const navigate = useNavigate();
+  const { lastVisited, bookmarks, toggleBookmark } = useReadingHistory();
 
   const [hadith, setHadith] = useState(null);
   const [hadithLoading, setHadithLoading] = useState(true);
@@ -34,14 +38,10 @@ function HomePage() {
         return res.json();
       })
       .then((data) => {
-        // Response shape: { hadiths: [{ hadithnumber, text, grades, reference }], metadata: { name, section, section_detail } }
         const h = data.hadiths?.[0];
         if (!h) throw new Error("No hadith found");
-
-        // section is an object like { "70": "Food, Meals" } — grab the first value
         const sectionKey = Object.keys(data.metadata?.section || {})[0];
         const sectionName = sectionKey ? data.metadata.section[sectionKey] : null;
-
         setHadith({
           text: h.text,
           hadithnumber: h.hadithnumber,
@@ -152,6 +152,51 @@ function HomePage() {
           {pageError && <Alert variant="danger" className="page-jump-error">{pageError}</Alert>}
         </div>
       </section>
+
+      {/* Continue Reading */}
+      {lastVisited.length > 0 && (
+        <section className="home-history-section">
+          <h3 className="home-section-heading">Continue Reading</h3>
+          <div className="home-history-list">
+            {lastVisited.map((entry) => (
+              <Link key={entry.path} to={entry.path} className="history-card">
+                <span className="history-card-type">{TYPE_LABELS[entry.type] ?? entry.type}</span>
+                <span className="history-card-label">{entry.label}</span>
+                {entry.arabicLabel && (
+                  <span className="history-card-arabic">{entry.arabicLabel}</span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Bookmarks */}
+      {bookmarks.length > 0 && (
+        <section className="home-history-section">
+          <h3 className="home-section-heading">Bookmarks</h3>
+          <div className="home-history-list">
+            {bookmarks.map((entry) => (
+              <div key={entry.path} className="history-card history-card--bookmark">
+                <Link to={entry.path} className="history-card-link-area">
+                  <span className="history-card-type">{TYPE_LABELS[entry.type] ?? entry.type}</span>
+                  <span className="history-card-label">{entry.label}</span>
+                  {entry.arabicLabel && (
+                    <span className="history-card-arabic">{entry.arabicLabel}</span>
+                  )}
+                </Link>
+                <button
+                  className="history-card-remove"
+                  onClick={() => toggleBookmark(entry)}
+                  aria-label={`Remove bookmark for ${entry.label}`}
+                >
+                  ★
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Quick Reference Stats */}
       <section className="home-stats">
