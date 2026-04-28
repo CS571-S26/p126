@@ -1710,3 +1710,106 @@ code {
   text-align: center;
   flex-shrink: 0;
 }
+
+/* ============ CONTINUE READING / BOOKMARKS ============ */
+
+.home-history-section {
+  max-width: 1052px;
+  align-self: center;
+  width: calc(100% - 48px);
+  margin: 0 24px 32px;
+  box-sizing: border-box;
+}
+
+.home-section-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0d1f17;
+  margin: 0 0 12px;
+  letter-spacing: 0.01em;
+}
+
+.home-history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.history-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #fff;
+  border: 1.5px solid #e5f0ea;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.12s;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.07);
+  cursor: pointer;
+}
+
+.history-card:hover {
+  border-color: #a7f3d0;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.14);
+  transform: translateY(-2px);
+}
+
+/* bookmark card overrides (has inner link + remove button) */
+.history-card--bookmark {
+  padding: 0;
+  gap: 0;
+}
+
+.history-card-link-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+}
+
+.history-card-remove {
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-left: 1px solid #e5f0ea;
+  color: #10b981;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+  border-radius: 0 10px 10px 0;
+}
+
+.history-card-remove:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.history-card-type {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #059669;
+  background: #d1fae5;
+  border-radius: 5px;
+  padding: 2px 7px;
+  flex-shrink: 0;
+}
+
+.history-card-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0d1f17;
+}
+
+.history-card-arabic {
+  font-size: 15px;
+  color: #3c8f69;
+  direction: rtl;
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { Spinner, Alert } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -8,11 +8,13 @@ import JuzMemorizationMode from "../components/JuzMemorizationMode";
 import MushafPage from "../components/MushafPage";
 import ReadingControlsSidebar from "../components/ReadingControlsSidebar";
 import useJuzData from "../hooks/useJuzData";
+import useReadingHistory from "../hooks/useReadingHistory";
 
 function JuzDetailPage() {
   const { num } = useParams();
   const navigate = useNavigate();
   const { surahGroups, loading, error } = useJuzData(num);
+  const { recordVisit, isBookmarked, toggleBookmark } = useReadingHistory();
   const [showTranslation, setShowTranslation] = useState(false);
   const [selectedAyah, setSelectedAyah] = useState(null);
   const [viewMode, setViewMode] = useState("scroll");
@@ -21,6 +23,26 @@ function JuzDetailPage() {
   const [memorizeState, setMemorizeState] = useState({ juzNum: num, count: 0 });
   const memorizeRevealedCount = memorizeState.juzNum === num ? memorizeState.count : 0;
   const [jumpInput, setJumpInput] = useState("");
+  const juzPath = `/juz/${num}`;
+
+  useEffect(() => {
+    if (loading || !surahGroups) return;
+    recordVisit({
+      type: "juz",
+      id: num,
+      title: `Juz ${num}`,
+      arabicLabel: `الجزء ${num}`,
+      path: juzPath
+    });
+  }, [num, loading]);
+
+  const bookmarkEntry = {
+    type: "juz",
+    id: num,
+    title: `Juz ${num}`,
+    arabicLabel: `الجزء ${num}`,
+    path: juzPath,
+  };
 
   function handleJump(juzPages) {
     const num2 = parseInt(jumpInput, 10);
@@ -199,6 +221,11 @@ function JuzDetailPage() {
           { label: "Home", icon: "⌂", onClick: () => navigate("/") },
           { label: "All Juzs", icon: "☰", onClick: () => navigate("/juz") },
         ]}
+
+        bookmark={{
+          isBookmarked: isBookmarked(juzPath),
+          onToggle: () => toggleBookmark(bookmarkEntry),
+        }}
       />
 
       {viewMode === "scroll" && juzPages.map((pageGroup) => (

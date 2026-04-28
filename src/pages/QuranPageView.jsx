@@ -9,6 +9,7 @@ import PageMemorizationMode from "../components/PageMemorizationMode";
 import ReadingControlsSidebar from "../components/ReadingControlsSidebar";
 import usePageData from "../hooks/usePageData";
 import usePageRangeData from "../hooks/usePageRangeData";
+import useReadingHistory from "../hooks/useReadingHistory";
 
 const TOTAL_PAGES = 604;
 
@@ -18,6 +19,7 @@ function QuranPageView() {
   const pageNum = parseInt(num, 10);
 
   const { surahGroups, loading, error } = usePageData(pageNum);
+  const {recordVisit, isBookmarked, toggleBookmark } = useReadingHistory();
   const [selectedAyah, setSelectedAyah] = useState(null);
   const [showTranslation, setShowTranslation] = useState(false);
   const [viewMode, setViewMode] = useState("page");
@@ -32,6 +34,31 @@ function QuranPageView() {
     pageNum,
     viewMode === "scroll" ? committedCount : 0
   );
+
+  const pagePath = `/page/${pageNum}`;
+
+  useEffect(() => {
+    if (loading) return;
+    // Get the first surah on this page
+    const firstSurah = surahGroups[0]?.surah;
+    recordVisit({
+      type: "page",
+      id: String(pageNum),
+      label: `Page ${pageNum}${firstSurah ? ` - ${firstSurah.englishName}` : ""}`,
+      arabicLabel: firstSurah ? firstSurah.name.split(" ").slice(1).join(" ") : undefined,
+      path: pagePath
+    });
+  }, [pageNum, loading, surahGroups]);
+
+  // Create bookmark entry with surah information
+  const firstSurah = surahGroups[0]?.surah;
+  const bookmarkEntry = {
+     type: "page",
+     id: String(pageNum),
+     label: `Page ${pageNum}${firstSurah ? ` - ${firstSurah.englishName}` : ""}`,
+     arabicLabel: firstSurah ? firstSurah.name.split(" ").slice(1).join(" ") : undefined,
+     path: pagePath,
+   };
 
   useEffect(() => {
     setVisiblePageNum(pageNum);
@@ -132,6 +159,11 @@ function QuranPageView() {
         navLinks={[
           { label: "Home", icon: "⌂", onClick: () => navigate("/") },
         ]}
+
+        bookmark={{
+          isBookmarked: isBookmarked(pagePath),
+          onToggle: () => toggleBookmark(bookmarkEntry),
+        }}
       />
 
       {viewMode === "scroll" ? (
