@@ -35,6 +35,7 @@ function SurahListPage() {
             type="text"
             className="search-input"
             placeholder="Search surah..."
+            aria-label="Search surahs"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -44,8 +45,10 @@ function SurahListPage() {
         {filtered.map((surah) => (
           <div
             role="button"
+            tabIndex={0}
             key={surah.number}
             onClick={() => navigate(`/surah/${surah.number}`)}
+            onKeyDown={(e) => e.key === "Enter" && navigate(`/surah/${surah.number}`)}
             className="surah-card"
           >
             <div className="surah-card-left">

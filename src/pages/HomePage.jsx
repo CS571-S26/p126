@@ -91,7 +91,7 @@ function HomePage() {
               <line x1="9" y1="21" x2="9" y2="9" />
             </svg>
           </div>
-          <h3 className="home-card-title">Browse by Surah</h3>
+          <h2 className="home-card-title">Browse by Surah</h2>
           <p className="home-card-arabic">تصفح بالسورة</p>
           <p className="home-card-desc">
             Read the Quran organized by its 114 chapters (Surahs). Perfect for those who prefer the traditional chapter-based reading.
@@ -107,7 +107,7 @@ function HomePage() {
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
             </svg>
           </div>
-          <h3 className="home-card-title">Browse by Juz</h3>
+          <h2 className="home-card-title">Browse by Juz</h2>
           <p className="home-card-arabic">تصفح بالجزء</p>
           <p className="home-card-desc">
             Divide your reading into 30 equal parts (Juz). Ideal for completing the Quran in a month, one Juz per day.
@@ -125,7 +125,7 @@ function HomePage() {
               <line x1="16" y1="17" x2="8" y2="17" />
             </svg>
           </div>
-          <h3 className="home-card-title">Jump to Page</h3>
+          <h2 className="home-card-title">Jump to Page</h2>
           <p className="home-card-arabic">انتقل إلى صفحة</p>
           <p className="home-card-desc">
             Navigate directly to any of the 604 pages of the Mushaf. Enter a page number below.
@@ -135,6 +135,7 @@ function HomePage() {
               type="number"
               className="page-jump-input"
               placeholder="Page number (1-604)"
+              aria-label="Go to page number"
               value={pageNum}
               min={1}
               max={604}
@@ -155,7 +156,7 @@ function HomePage() {
 
       {/* Quick Reference Stats */}
       <section className="home-stats">
-        <h3 className="home-stats-title">Quick Reference</h3>
+        <h2 className="home-stats-title">Quick Reference</h2>
         <div className="home-stats-grid">
           <div className="home-stat">
             <span className="home-stat-num">114</span>
@@ -178,10 +179,10 @@ function HomePage() {
 
       {/* Hadith of the Day */}
       <section className="home-hadith">
-        <h3 className="home-hadith-title">
+        <h2 className="home-hadith-title">
           <span className="home-hadith-title-icon">☽</span>
           Hadith of the Day
-        </h3>
+        </h2>
         {hadithLoading && (
           <p className="home-hadith-loading">Loading hadith…</p>
         )}

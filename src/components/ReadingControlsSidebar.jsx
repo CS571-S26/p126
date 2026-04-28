@@ -123,6 +123,7 @@ function ReadingControlsSidebar({
                 inputMode="numeric"
                 className="sidebar-input"
                 placeholder={jumpPlaceholder ?? "Page #"}
+                aria-label="Jump to page"
                 value={jumpInput}
                 onChange={(e) => onJumpInputChange(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && onJump()}
@@ -161,6 +162,7 @@ function ReadingControlsSidebar({
                 type="text"
                 inputMode="numeric"
                 className="sidebar-input"
+                aria-label="Number of pages to load"
                 value={scrollCount}
                 onChange={(e) => onScrollCountChange(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && onCommitScrollCount()}
