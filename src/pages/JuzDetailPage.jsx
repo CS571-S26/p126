@@ -233,6 +233,7 @@ function JuzDetailPage() {
           revealedCount={memorizeRevealedCount}
           onRevealedCountChange={updateMemorizeRevealedCount}
           onAyahClick={setSelectedAyah}
+          showTranslation={showTranslation}
         />
       )}
 

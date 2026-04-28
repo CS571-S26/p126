@@ -7,6 +7,7 @@ function JuzMemorizationMode({
   revealedCount,
   onRevealedCountChange,
   onAyahClick,
+  showTranslation,
 }) {
   const total = pages.reduce(
     (sum, pageGroup) =>
@@ -53,7 +54,7 @@ function JuzMemorizationMode({
           <MushafPage
             key={pageGroup.page}
             pageNumber={pageGroup.page}
-            showTranslation={false}
+            showTranslation={showTranslation}
           >
             {pageGroup.sections.map((section) => {
               const sectionOffset = pageOffset;
@@ -81,7 +82,17 @@ function JuzMemorizationMode({
 
                   {section.ayahs.map((ayah, ayahIndex) => {
                     const isRevealed = sectionOffset + ayahIndex < effectiveRevealedCount;
-
+                    if (showTranslation) {
+                      return (
+                        <div key={ayah.number} className="ayah-row" onClick={() => onAyahClick(ayah)}>
+                          <div className={`ayah-arabic-col${isRevealed ? "" : " ayah-memorize-hidden"}`}>
+                            {ayah.text}
+                            <span className="ayah-number">{ayah.numberInSurah}</span>
+                          </div>
+                          <div className="ayah-english-col">{ayah.translation}</div>
+                        </div>
+                      );
+                    }
                     return (
                       <span
                         key={ayah.number}

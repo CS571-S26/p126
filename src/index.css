@@ -971,6 +971,12 @@ code {
   text-align: right;
   font-size: 24px;
   line-height: 2.5;
+  transition: color 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .ayah-english-col {
@@ -980,6 +986,7 @@ code {
   line-height: 1.8;
   color: #444;
   align-self: center;
+  animation: fadeIn 0.4s ease;
 }
 
 .modal-translation {

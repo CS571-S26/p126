@@ -6,6 +6,7 @@ function PageMemorizationMode({
   revealedCount,
   onRevealedCountChange,
   onAyahClick,
+  showTranslation,
 }) {
   const total = surahGroups.reduce((sum, group) => sum + group.ayahs.length, 0);
   const pageStartIndexes = [];
@@ -64,6 +65,17 @@ function PageMemorizationMode({
 
                 {group.ayahs.map((ayah, localIndex) => {
                   const isRevealed = startIdx + localIndex < effectiveRevealedCount;
+                  if (showTranslation) {
+                    return (
+                      <div key={ayah.number} className="ayah-row" onClick={() => onAyahClick(ayah)}>
+                        <div className="ayah-english-col">{ayah.translation}</div>
+                        <div className={`ayah-arabic-col${isRevealed ? "" : " ayah-memorize-hidden"}`}>
+                          {ayah.text}
+                          <span className="ayah-number">{ayah.numberInSurah}</span>
+                        </div>
+                      </div>
+                    );
+                  }
                   return (
                     <span
                       key={ayah.number}

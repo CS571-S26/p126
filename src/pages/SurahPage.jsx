@@ -151,6 +151,7 @@ function SurahPage() {
           revealedCount={memorizeRevealedCount}
           onRevealedCountChange={updateMemorizeRevealedCount}
           onAyahClick={setSelectedAyah}
+          showTranslation={showTranslation}
         />
       )}
 

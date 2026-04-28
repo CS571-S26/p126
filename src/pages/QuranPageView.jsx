@@ -114,7 +114,6 @@ function QuranPageView() {
         onCommitScrollCount={commitScrollCount}
         info={{
           number: viewMode === "scroll" ? visiblePageNum : pageNum,
-          englishName: `Page ${viewMode === "scroll" ? visiblePageNum : pageNum}`,
           subtitle: `of ${TOTAL_PAGES}`,
         }}
         pageNav={viewMode !== "scroll" ? {
@@ -161,6 +160,7 @@ function QuranPageView() {
           revealedCount={memorizeRevealedCount}
           onRevealedCountChange={updateMemorizeRevealedCount}
           onAyahClick={setSelectedAyah}
+          showTranslation={showTranslation}
         />
       ) : (
         <MushafPage pageNumber={pageNum} showTranslation={showTranslation}>
