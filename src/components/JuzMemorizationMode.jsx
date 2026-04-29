@@ -5,9 +5,12 @@ function JuzMemorizationMode({
   pages,
   onSurahNavigate,
   revealedCount,
-  onRevealedCountChange,
   onAyahClick,
   showTranslation,
+  wordByWord,
+  partialReveal,
+  onReveal,
+  onHide,
 }) {
   const total = pages.reduce(
     (sum, pageGroup) =>
@@ -23,21 +26,14 @@ function JuzMemorizationMode({
     runningAyahCount += pageGroup.sections.reduce((sum, section) => sum + section.ayahs.length, 0);
   }
 
-  function updateRevealedCount(updater) {
-    const currentValue = Math.min(revealedCount, total);
-    const nextValue = typeof updater === "function" ? updater(currentValue) : updater;
-    onRevealedCountChange(nextValue);
-  }
-
   const handleKey = useEffectEvent((e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "Enter" || e.key === "Backspace") {
       e.preventDefault();
       e.stopPropagation();
     }
-
-    if (e.key === "Enter") updateRevealedCount((count) => Math.min(total, count + 1));
-    if (e.key === "Backspace") updateRevealedCount((count) => Math.max(0, count - 1));
+    if (e.key === "Enter") onReveal();
+    if (e.key === "Backspace") onHide();
   });
 
   useEffect(() => {
@@ -81,12 +77,19 @@ function JuzMemorizationMode({
                   {section.bismillah && <div className="bismillah">{section.bismillah}</div>}
 
                   {section.ayahs.map((ayah, ayahIndex) => {
-                    const isRevealed = sectionOffset + ayahIndex < effectiveRevealedCount;
+                    const globalIndex = sectionOffset + ayahIndex;
+                    const isRevealed = globalIndex < effectiveRevealedCount;
+                    const isPartial = wordByWord && partialReveal && globalIndex === effectiveRevealedCount;
+                    const hiddenClass = isRevealed || isPartial ? "" : " ayah-memorize-hidden";
+                    const words = ayah.text.split(" ");
+                    const ayahContent = isPartial ? (
+                      <>{words[0]}{words.length > 1 && <span style={{ visibility: "hidden" }}>{" " + words.slice(1).join(" ")}</span>}</>
+                    ) : ayah.text;
                     if (showTranslation) {
                       return (
                         <div key={ayah.number} className="ayah-row" onClick={() => onAyahClick(ayah)}>
-                          <div className={`ayah-arabic-col${isRevealed ? "" : " ayah-memorize-hidden"}`}>
-                            {ayah.text}
+                          <div className={`ayah-arabic-col${hiddenClass}`}>
+                            {ayahContent}
                             <span className="ayah-number">{ayah.numberInSurah}</span>
                           </div>
                           <div className="ayah-english-col">{ayah.translation}</div>
@@ -96,10 +99,10 @@ function JuzMemorizationMode({
                     return (
                       <span
                         key={ayah.number}
-                        className={`ayah-clickable${isRevealed ? "" : " ayah-memorize-hidden"}`}
+                        className={`ayah-clickable${hiddenClass}`}
                         onClick={() => onAyahClick(ayah)}
                       >
-                        {ayah.text}
+                        {ayahContent}
                         <span className="ayah-number">{ayah.numberInSurah}</span>
                       </span>
                     );

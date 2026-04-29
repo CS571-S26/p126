@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function ReadingControlsSidebar({
   viewMode,
@@ -21,6 +21,20 @@ function ReadingControlsSidebar({
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const modeLabels = { scroll: "Scroll", page: "Page", memorize: "Memorize" };
+
+  const pageNavRef = useRef(pageNav);
+  useEffect(() => { pageNavRef.current = pageNav; });
+
+  useEffect(() => {
+    function handleKey(e) {
+      if (!pageNavRef.current) return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      if (e.key === "ArrowRight" && !pageNavRef.current.nextDisabled) pageNavRef.current.onNext();
+      if (e.key === "ArrowLeft" && !pageNavRef.current.prevDisabled) pageNavRef.current.onPrev();
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
 
   useEffect(() => {
     document.body.style.transition = "padding-left 0.25s ease";
@@ -149,9 +163,22 @@ function ReadingControlsSidebar({
           <div className="sidebar-section">
             <div className="sidebar-section-label">Memorization</div>
             <div className="sidebar-page-nav">
-              <button className="sidebar-nav-btn" onClick={memorizeControls.onHide} disabled={memorizeControls.hideDisabled}>← Hide</button>
-              <button className="sidebar-nav-btn" onClick={memorizeControls.onReveal} disabled={memorizeControls.revealDisabled}>Reveal →</button>
+              <button className="sidebar-nav-btn" onClick={memorizeControls.onHide} disabled={memorizeControls.hideDisabled} onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}>← Hide</button>
+              <span className="sidebar-nav-label">
+                {memorizeControls.total != null ? `${memorizeControls.revealed} / ${memorizeControls.total}` : null}
+              </span>
+              <button className="sidebar-nav-btn" onClick={memorizeControls.onReveal} disabled={memorizeControls.revealDisabled} onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}>Reveal →</button>
             </div>
+            {memorizeControls.onToggleWordByWord && (
+              <div style={{ marginTop: "6px" }}>
+                <button
+                  className={`sidebar-ctrl-btn${memorizeControls.wordByWord ? " sidebar-ctrl-active" : ""}`}
+                  onClick={memorizeControls.onToggleWordByWord}
+                >
+                  {memorizeControls.wordByWord ? "First Word: On" : "First Word: Off"}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

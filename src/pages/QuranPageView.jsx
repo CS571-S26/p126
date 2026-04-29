@@ -27,6 +27,8 @@ function QuranPageView() {
   const [committedCount, setCommittedCount] = useState(10);
   const [memorizeState, setMemorizeState] = useState({ pageNum, count: 0 });
   const memorizeRevealedCount = memorizeState.pageNum === pageNum ? memorizeState.count : 0;
+  const [wordByWord, setWordByWord] = useState(false);
+  const [partialReveal, setPartialReveal] = useState(false);
   const [visiblePageNum, setVisiblePageNum] = useState(pageNum);
   const visiblePagesRef = useRef(new Set());
 
@@ -63,6 +65,7 @@ function QuranPageView() {
   useEffect(() => {
     setVisiblePageNum(pageNum);
     visiblePagesRef.current.clear();
+    setPartialReveal(false);
   }, [pageNum]);
 
   useEffect(() => {
@@ -128,6 +131,30 @@ function QuranPageView() {
 
   const memorizeTotal = surahGroups.reduce((sum, group) => sum + group.ayahs.length, 0);
 
+  function handleMemorizeReveal() {
+    if (memorizeRevealedCount >= memorizeTotal) return;
+    if (wordByWord && !partialReveal) {
+      setPartialReveal(true);
+    } else {
+      updateMemorizeRevealedCount((c) => Math.min(memorizeTotal, c + 1));
+      setPartialReveal(false);
+    }
+  }
+
+  function handleMemorizeHide() {
+    if (memorizeRevealedCount <= 0 && !partialReveal) return;
+    if (partialReveal) {
+      setPartialReveal(false);
+    } else {
+      updateMemorizeRevealedCount((c) => Math.max(0, c - 1));
+    }
+  }
+
+  function toggleWordByWord() {
+    setWordByWord((w) => !w);
+    setPartialReveal(false);
+  }
+
   return (
     <div>
       <Navbar />
@@ -151,10 +178,14 @@ function QuranPageView() {
           label: pageNum,
         } : undefined}
         memorizeControls={viewMode === "memorize" ? {
-          onHide: () => updateMemorizeRevealedCount((count) => Math.max(0, count - 1)),
-          onReveal: () => updateMemorizeRevealedCount((count) => Math.min(memorizeTotal, count + 1)),
-          hideDisabled: memorizeRevealedCount <= 0,
+          onHide: handleMemorizeHide,
+          onReveal: handleMemorizeReveal,
+          hideDisabled: memorizeRevealedCount <= 0 && !partialReveal,
           revealDisabled: memorizeRevealedCount >= memorizeTotal,
+          wordByWord,
+          onToggleWordByWord: toggleWordByWord,
+          revealed: memorizeRevealedCount,
+          total: memorizeTotal,
         } : undefined}
         navLinks={[
           { label: "Home", icon: "⌂", onClick: () => navigate("/") },
@@ -190,9 +221,12 @@ function QuranPageView() {
           pageNum={pageNum}
           surahGroups={surahGroups}
           revealedCount={memorizeRevealedCount}
-          onRevealedCountChange={updateMemorizeRevealedCount}
           onAyahClick={setSelectedAyah}
           showTranslation={showTranslation}
+          wordByWord={wordByWord}
+          partialReveal={partialReveal}
+          onReveal={handleMemorizeReveal}
+          onHide={handleMemorizeHide}
         />
       ) : (
         <MushafPage pageNumber={pageNum} showTranslation={showTranslation}>

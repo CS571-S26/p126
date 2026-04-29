@@ -22,8 +22,14 @@ function JuzDetailPage() {
   const currentPageIndex = pageState.juzNum === num ? pageState.pageIndex : 0;
   const [memorizeState, setMemorizeState] = useState({ juzNum: num, count: 0 });
   const memorizeRevealedCount = memorizeState.juzNum === num ? memorizeState.count : 0;
+  const [firstWord, setFirstWord] = useState(false);
+  const [partialReveal, setPartialReveal] = useState(false);
   const [jumpInput, setJumpInput] = useState("");
   const juzPath = `/juz/${num}`;
+
+  useEffect(() => {
+    setPartialReveal(false);
+  }, [num]);
 
   useEffect(() => {
     if (loading || !surahGroups) return;
@@ -136,6 +142,35 @@ function JuzDetailPage() {
     return pages;
   }, []);
 
+  const memorizeTotal = juzPages.reduce(
+    (sum, pageGroup) => sum + pageGroup.sections.reduce((s, section) => s + section.ayahs.length, 0),
+    0
+  );
+
+  function handleMemorizeReveal() {
+    if (memorizeRevealedCount >= memorizeTotal) return;
+    if (firstWord && !partialReveal) {
+      setPartialReveal(true);
+    } else {
+      updateMemorizeRevealedCount((c) => Math.min(memorizeTotal, c + 1));
+      setPartialReveal(false);
+    }
+  }
+
+  function handleMemorizeHide() {
+    if (memorizeRevealedCount <= 0 && !partialReveal) return;
+    if (partialReveal) {
+      setPartialReveal(false);
+    } else {
+      updateMemorizeRevealedCount((c) => Math.max(0, c - 1));
+    }
+  }
+
+  function toggleWordByWord() {
+    setFirstWord((w) => !w);
+    setPartialReveal(false);
+  }
+
   function renderPageSection(section, pageNumber) {
     return (
       <div key={`${pageNumber}-${section.surahNumber}-${section.ayahs[0].number}`}>
@@ -187,27 +222,14 @@ function JuzDetailPage() {
           label: juzPages[currentPageIndex]?.page,
         } : undefined}
         memorizeControls={viewMode === "memorize" ? {
-          onHide: () => updateMemorizeRevealedCount((count) => Math.max(0, count - 1)),
-          onReveal: () => updateMemorizeRevealedCount((count) => Math.min(
-            juzPages.reduce(
-              (sum, pageGroup) =>
-                sum + pageGroup.sections.reduce(
-                  (sectionSum, section) => sectionSum + section.ayahs.length,
-                  0
-                ),
-              0
-            ),
-            count + 1
-          )),
-          hideDisabled: memorizeRevealedCount <= 0,
-          revealDisabled: memorizeRevealedCount >= juzPages.reduce(
-            (sum, pageGroup) =>
-              sum + pageGroup.sections.reduce(
-                (sectionSum, section) => sectionSum + section.ayahs.length,
-                0
-              ),
-            0
-          ),
+          onHide: handleMemorizeHide,
+          onReveal: handleMemorizeReveal,
+          hideDisabled: memorizeRevealedCount <= 0 && !partialReveal,
+          revealDisabled: memorizeRevealedCount >= memorizeTotal,
+          wordByWord: firstWord,
+          onToggleWordByWord: toggleWordByWord,
+          revealed: memorizeRevealedCount,
+          total: memorizeTotal,
         } : undefined}
         info={{
           number: parseInt(num),
@@ -258,9 +280,12 @@ function JuzDetailPage() {
           pages={juzPages}
           onSurahNavigate={(surahNumber) => navigate(`/surah/${surahNumber}`)}
           revealedCount={memorizeRevealedCount}
-          onRevealedCountChange={updateMemorizeRevealedCount}
           onAyahClick={setSelectedAyah}
           showTranslation={showTranslation}
+          wordByWord={firstWord}
+          partialReveal={partialReveal}
+          onReveal={handleMemorizeReveal}
+          onHide={handleMemorizeHide}
         />
       )}
 

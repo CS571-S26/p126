@@ -1,17 +1,11 @@
 import { useEffect, useEffectEvent } from "react";
 import MushafPage from "./MushafPage";
 
-function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChange, onAyahClick, showTranslation }) {
+function MemorizationMode({ pages, bismillah, revealedCount, onAyahClick, showTranslation, wordByWord, partialReveal, onReveal, onHide }) {
   const total = pages.reduce((sum, p) => sum + p.ayahs.length, 0);
   const pageStartIndexes = [];
   let runningAyahCount = 0;
   const effectiveRevealedCount = Math.min(revealedCount, total);
-
-  function updateRevealedCount(updater) {
-    const currentValue = Math.min(revealedCount, total);
-    const nextValue = typeof updater === "function" ? updater(currentValue) : updater;
-    onRevealedCountChange(nextValue);
-  }
 
   const handleMemorizationKey = useEffectEvent((e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
@@ -19,8 +13,8 @@ function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChan
       e.preventDefault();
       e.stopPropagation();
     }
-    if (e.key === "Enter") updateRevealedCount((c) => Math.min(total, c + 1));
-    if (e.key === "Backspace") updateRevealedCount((c) => Math.max(0, c - 1));
+    if (e.key === "Enter") onReveal();
+    if (e.key === "Backspace") onHide();
   });
 
   for (const pageGroup of pages) {
@@ -41,12 +35,19 @@ function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChan
           <MushafPage key={pageGroup.page} pageNumber={pageGroup.page} showTranslation={showTranslation}>
             {groupIndex === 0 && bismillah && <div className="bismillah">{bismillah}</div>}
             {pageGroup.ayahs.map((ayah, localIndex) => {
-              const isRevealed = startIdx + localIndex < effectiveRevealedCount;
+              const globalIndex = startIdx + localIndex;
+              const isRevealed = globalIndex < effectiveRevealedCount;
+              const isPartial = wordByWord && partialReveal && globalIndex === effectiveRevealedCount;
+              const hiddenClass = isRevealed || isPartial ? "" : " ayah-memorize-hidden";
+              const words = ayah.text.split(" ");
+              const ayahContent = isPartial ? (
+                <>{words[0]}{words.length > 1 && <span style={{ visibility: "hidden" }}>{" " + words.slice(1).join(" ")}</span>}</>
+              ) : ayah.text;
               if (showTranslation) {
                 return (
                   <div key={ayah.number} className="ayah-row" onClick={() => onAyahClick(ayah)}>
-                    <div className={`ayah-arabic-col${isRevealed ? "" : " ayah-memorize-hidden"}`}>
-                      {ayah.text}
+                    <div className={`ayah-arabic-col${hiddenClass}`}>
+                      {ayahContent}
                       <span className="ayah-number">{ayah.numberInSurah}</span>
                     </div>
                     <div className="ayah-english-col">{ayah.translation}</div>
@@ -56,10 +57,10 @@ function MemorizationMode({ pages, bismillah, revealedCount, onRevealedCountChan
               return (
                 <span
                   key={ayah.number}
-                  className={`ayah-clickable${isRevealed ? "" : " ayah-memorize-hidden"}`}
+                  className={`ayah-clickable${hiddenClass}`}
                   onClick={() => onAyahClick(ayah)}
                 >
-                  {ayah.text}
+                  {ayahContent}
                   <span className="ayah-number">{ayah.numberInSurah}</span>
                 </span>
               );

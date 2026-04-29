@@ -23,6 +23,8 @@ function SurahPage() {
   const [jumpInput, setJumpInput] = useState("");
   const [memorizeState, setMemorizeState] = useState({ surahId: id, count: 0 });
   const memorizeRevealedCount = memorizeState.surahId === id ? memorizeState.count : 0;
+  const [wordByWord, setWordByWord] = useState(false);
+  const [partialReveal, setPartialReveal] = useState(false);
 
   const surahPath = `/surah/${id}`;
 
@@ -38,6 +40,10 @@ function SurahPage() {
       path: surahPath
     });
   }, [id, loading, surahMeta, currentPageIndex, pages]);
+
+  useEffect(() => {
+    setPartialReveal(false);
+  }, [id]);
 
   // Create bookmark entry with current page information
   const currentPage = pages[currentPageIndex]?.page;
@@ -92,6 +98,30 @@ function SurahPage() {
   const pageNums = pages.map((p) => p.page);
   const memorizeTotal = pages.reduce((sum, pageGroup) => sum + pageGroup.ayahs.length, 0);
 
+  function handleMemorizeReveal() {
+    if (memorizeRevealedCount >= memorizeTotal) return;
+    if (wordByWord && !partialReveal) {
+      setPartialReveal(true);
+    } else {
+      updateMemorizeRevealedCount((c) => Math.min(memorizeTotal, c + 1));
+      setPartialReveal(false);
+    }
+  }
+
+  function handleMemorizeHide() {
+    if (memorizeRevealedCount <= 0 && !partialReveal) return;
+    if (partialReveal) {
+      setPartialReveal(false);
+    } else {
+      updateMemorizeRevealedCount((c) => Math.max(0, c - 1));
+    }
+  }
+
+  function toggleWordByWord() {
+    setWordByWord((w) => !w);
+    setPartialReveal(false);
+  }
+
   return (
     <div style={{ background: "#f1fef5" }}>
       <Navbar />
@@ -112,10 +142,14 @@ function SurahPage() {
           label: pages[currentPageIndex]?.page,
         } : undefined}
         memorizeControls={viewMode === "memorize" ? {
-          onHide: () => updateMemorizeRevealedCount((count) => Math.max(0, count - 1)),
-          onReveal: () => updateMemorizeRevealedCount((count) => Math.min(memorizeTotal, count + 1)),
-          hideDisabled: memorizeRevealedCount <= 0,
+          onHide: handleMemorizeHide,
+          onReveal: handleMemorizeReveal,
+          hideDisabled: memorizeRevealedCount <= 0 && !partialReveal,
           revealDisabled: memorizeRevealedCount >= memorizeTotal,
+          wordByWord,
+          onToggleWordByWord: toggleWordByWord,
+          revealed: memorizeRevealedCount,
+          total: memorizeTotal,
         } : undefined}
         info={{
           number: parseInt(id),
@@ -180,9 +214,12 @@ function SurahPage() {
           pages={pages}
           bismillah={bismillah}
           revealedCount={memorizeRevealedCount}
-          onRevealedCountChange={updateMemorizeRevealedCount}
           onAyahClick={setSelectedAyah}
           showTranslation={showTranslation}
+          wordByWord={wordByWord}
+          partialReveal={partialReveal}
+          onReveal={handleMemorizeReveal}
+          onHide={handleMemorizeHide}
         />
       )}
 
